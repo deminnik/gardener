@@ -1,0 +1,16 @@
+[general]
+name=Gardener
+qgisMinimumVersion=3.0
+description=Suppressing vegetation in remote sensing images
+version=1.0
+author=deminnik
+email=64067860+deminnik@users.noreply.github.com
+
+about=Plugin for suppressing vegetation in remote sensing images using the Forced Invariance Method
+
+repository=https://github.com/deminnik/gardener
+
+category=Raster
+
+experimental=True
+deprecated=False
