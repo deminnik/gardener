@@ -1,10 +1,13 @@
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
+from gardener.view.main_form import MainForm
+
 
 class Gardener:
     def __init__(self, iface):
         self.iface = iface
+        self.main_widget = MainForm(self)
 
     def initGui(self):
         self.action = QAction(
@@ -21,4 +24,4 @@ class Gardener:
         self.iface.removeToolBarIcon(self.action)
 
     def run(self):
-        pass
+        self.main_widget.show()
