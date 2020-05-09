@@ -40,7 +40,11 @@
        <item>
         <layout class="QHBoxLayout" name="scaleHorizontalLayout">
          <item>
-          <widget class="QSpinBox" name="scaleFromSpinBox"/>
+          <widget class="QSpinBox" name="scaleFromSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="scaleDashLabel">
@@ -53,7 +57,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="scaleToSpinBox"/>
+          <widget class="QSpinBox" name="scaleToSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="scalingHorizontalSpacer">
@@ -91,7 +99,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="binXSpinBox"/>
+          <widget class="QSpinBox" name="binXSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="binYabel">
@@ -101,7 +113,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="binYSpinBox"/>
+          <widget class="QSpinBox" name="binYSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="binsHorizontalSpacer">
@@ -141,7 +157,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="thresholdBottomSpinBox"/>
+        <widget class="QDoubleSpinBox" name="thresholdBottomSpinBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="thresholdTopLabel">
@@ -151,7 +171,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="thresholdTopSpinBox"/>
+        <widget class="QDoubleSpinBox" name="thresholdTopSpinBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
        <item>
         <spacer name="thresholdsHorizontalSpacer">
@@ -227,6 +251,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -295,7 +322,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QgsMapLayerComboBox" name="maskLayerComboBox"/>
+        <widget class="QgsMapLayerComboBox" name="maskLayerComboBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
