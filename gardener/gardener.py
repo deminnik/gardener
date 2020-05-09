@@ -4,10 +4,13 @@ from qgis.PyQt.QtWidgets import QAction
 from gardener.view.main_form import MainForm
 from gardener.view.params_form import ParamsForm
 
+from gardener.model.unveiling import Parameters
+
 
 class Gardener:
     def __init__(self, iface):
         self.iface = iface
+        self.parameters = Parameters()
         self.main_widget = MainForm(self)
         self.params_widget = ParamsForm(self)
 
