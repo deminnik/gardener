@@ -6,11 +6,13 @@ class ParamsPresenter:
     def __init__(self, view):
         self.view = view
         self.smoothing_windows = []
+        self.s = ' '
 
     def add_window_size(self, size):
         self.smoothing_windows.append(size)
         current_text = self.view.windowsLineEdit.text()
-        self.view.windowsLineEdit.setText(current_text+", "+str(size))
+        new_text = str(size) if current_text == "" else self.s+str(size)
+        self.view.windowsLineEdit.setText(current_text+new_text)
 
     def clear_window_sizes(self):
         self.smoothing_windows.clear()
@@ -51,6 +53,6 @@ class ParamsPresenter:
         self.view.targetSpinBox.setValue(params.coefficient)
         if all(map(lambda x: x > 1, params.windows)):
             self.smoothing_windows = params.windows.copy()
-            self.view.windowsLineEdit.setText(", ".join(map(str, params.windows)))
+            self.view.windowsLineEdit.setText(self.s.join(map(str, params.windows)))
         else:
             QgsMessageLog.logMessage("Some window sizes less than or equal 1", "Gardener", level=Qgis.Warning)
