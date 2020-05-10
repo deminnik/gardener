@@ -39,4 +39,7 @@ class ParamsPresenter:
             self.view.maskCheckBox.setChecked(Qt.Checked)
             self.view.maskLayerComboBox.setLayer(params.mask)
         self.view.targetSpinBox.setValue(params.coefficient)
-        self.view.windowsLineEdit.setText(", ".join(map(str, params.windows)))
+        if all(map(lambda x: x > 1, params.windows)):
+            self.view.windowsLineEdit.setText(", ".join(map(str, params.windows)))
+        else:
+            QgsMessageLog.logMessage("Some window sizes less than or equal 1", "Gardener", level=Qgis.Warning)
