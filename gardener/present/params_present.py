@@ -5,6 +5,12 @@ from qgis.core import QgsMessageLog, Qgis
 class ParamsPresenter:
     def __init__(self, view):
         self.view = view
+        self.smoothing_windows = []
+
+    def add_window_size(self, size):
+        self.smoothing_windows.append(size)
+        current_text = self.view.windowsLineEdit.text()
+        self.view.windowsLineEdit.setText(current_text+", "+str(size))
 
     def init_window(self, params):
         if params.scales is None:
@@ -40,6 +46,7 @@ class ParamsPresenter:
             self.view.maskLayerComboBox.setLayer(params.mask)
         self.view.targetSpinBox.setValue(params.coefficient)
         if all(map(lambda x: x > 1, params.windows)):
+            self.smoothing_windows = params.windows.copy()
             self.view.windowsLineEdit.setText(", ".join(map(str, params.windows)))
         else:
             QgsMessageLog.logMessage("Some window sizes less than or equal 1", "Gardener", level=Qgis.Warning)

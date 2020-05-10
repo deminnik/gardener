@@ -27,6 +27,10 @@ class ParamsForm(QWidget):
             partial(self.checkbox_toggled, (self.maskLayerComboBox,))
         )
         self.scaleFromSpinBox.valueChanged.connect(self.change_range)
+        self.windowAddButton.clicked.connect(self.addWindowSize)
+
+    def addWindowSize(self):
+        self.presenter.add_window_size(self.windowSpinBox.value())
 
     def change_range(self, value):
         self.scaleToSpinBox.setMinimum(value+self.scaleToSpinBox.singleStep())
