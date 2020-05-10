@@ -27,8 +27,12 @@ class ParamsPresenter:
             self.view.thresholdsCheckBox.setChecked(Qt.Unchecked)
         else:
             self.view.thresholdsCheckBox.setChecked(Qt.Checked)
-            self.view.binXSpinBox.setValue(params.thresholds[0])
-            self.view.binYSpinBox.setValue(params.thresholds[1])
+            bottom, top = params.thresholds
+            if bottom < top:
+                self.view.thresholdBottomSpinBox.setValue(bottom)
+                self.view.thresholdTopSpinBox.setValue(top)
+            else:
+                QgsMessageLog.logMessage("In thresholds bottom >= top", "Gardener", level=Qgis.Warning)
         if params.mask is None:
             self.view.maskCheckBox.setChecked(Qt.Unchecked)
         else:
