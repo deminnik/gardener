@@ -26,8 +26,11 @@ class ParamsForm(QWidget):
         self.maskCheckBox.toggled.connect(
             partial(self.checkbox_toggled, (self.maskLayerComboBox,))
         )
-        self.presenter.init_window(self.manager.parameters)
 
     def checkbox_toggled(self, controls, state):
         for control in controls:
             control.setEnabled(state)
+
+    def showEvent(self, e):
+        self.presenter.init_window(self.manager.parameters)
+        QWidget.showEvent(self, e)
