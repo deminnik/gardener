@@ -3,7 +3,8 @@ from functools import partial
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QWidget
-from qgis.PyQt.QtCore import Qt
+
+from gardener.present.params_present import ParamsPresenter
 
 
 class ParamsForm(QWidget):
@@ -11,6 +12,7 @@ class ParamsForm(QWidget):
         super(ParamsForm, self).__init__(parent)
         self.uifile = path.join(path.dirname(__file__), "ui/params.ui")
         self.manager = manager
+        self.presenter = ParamsPresenter(self)
         uic.loadUi(self.uifile, self)
         self.scalingCheckBox.toggled.connect(
             partial(self.checkbox_toggled, (self.scaleFromSpinBox, self.scaleToSpinBox))
@@ -24,34 +26,7 @@ class ParamsForm(QWidget):
         self.maskCheckBox.toggled.connect(
             partial(self.checkbox_toggled, (self.maskLayerComboBox,))
         )
-        self.init_window(self.manager.parameters)
-
-    def init_window(self, params):
-        if params.scales is None:
-            self.scalingCheckBox.setChecked(Qt.Unchecked)
-        else:
-            self.scalingCheckBox.setChecked(Qt.Checked)
-            self.scaleFromSpinBox.setValue(params.scales[0])
-            self.scaleToSpinBox.setValue(params.scales[1])
-        if params.bins is None:
-            self.binsCheckBox.setChecked(Qt.Unchecked)
-        else:
-            self.binsCheckBox.setChecked(Qt.Checked)
-            self.binXSpinBox.setValue(params.bins[0])
-            self.binYSpinBox.setValue(params.bins[1])
-        if params.thresholds is None:
-            self.thresholdsCheckBox.setChecked(Qt.Unchecked)
-        else:
-            self.thresholdsCheckBox.setChecked(Qt.Checked)
-            self.binXSpinBox.setValue(params.thresholds[0])
-            self.binYSpinBox.setValue(params.thresholds[1])
-        if params.mask is None:
-            self.maskCheckBox.setChecked(Qt.Unchecked)
-        else:
-            self.maskCheckBox.setChecked(Qt.Checked)
-            self.maskLayerComboBox.setLayer(params.mask)
-        self.targetSpinBox.setValue(params.coefficient)
-        self.windowsLineEdit.setText(", ".join(map(str, params.windows)))
+        self.presenter.init_window(self.manager.parameters)
 
     def checkbox_toggled(self, controls, state):
         for control in controls:
