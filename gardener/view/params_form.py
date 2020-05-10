@@ -28,6 +28,10 @@ class ParamsForm(QWidget):
         )
         self.scaleFromSpinBox.valueChanged.connect(self.change_range)
         self.windowAddButton.clicked.connect(self.addWindowSize)
+        self.windowsClearButton.clicked.connect(self.clearWindowSizes)
+
+    def clearWindowSizes(self):
+        self.presenter.clear_window_sizes()
 
     def addWindowSize(self):
         self.presenter.add_window_size(self.windowSpinBox.value())

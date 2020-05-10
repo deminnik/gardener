@@ -12,6 +12,10 @@ class ParamsPresenter:
         current_text = self.view.windowsLineEdit.text()
         self.view.windowsLineEdit.setText(current_text+", "+str(size))
 
+    def clear_window_sizes(self):
+        self.smoothing_windows.clear()
+        self.view.windowsLineEdit.clear()
+
     def init_window(self, params):
         if params.scales is None:
             self.view.scalingCheckBox.setChecked(Qt.Unchecked)
