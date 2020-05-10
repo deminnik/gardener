@@ -26,6 +26,10 @@ class ParamsForm(QWidget):
         self.maskCheckBox.toggled.connect(
             partial(self.checkbox_toggled, (self.maskLayerComboBox,))
         )
+        self.scaleFromSpinBox.valueChanged.connect(self.change_range)
+
+    def change_range(self, value):
+        self.scaleToSpinBox.setMinimum(value+self.scaleToSpinBox.singleStep())
 
     def checkbox_toggled(self, controls, state):
         for control in controls:

@@ -1,4 +1,5 @@
 from qgis.PyQt.QtCore import Qt
+from qgis.core import QgsMessageLog, Qgis
 
 
 class ParamsPresenter:
@@ -10,8 +11,12 @@ class ParamsPresenter:
             self.view.scalingCheckBox.setChecked(Qt.Unchecked)
         else:
             self.view.scalingCheckBox.setChecked(Qt.Checked)
-            self.view.scaleFromSpinBox.setValue(params.scales[0])
-            self.view.scaleToSpinBox.setValue(params.scales[1])
+            scalefrom, scaleto = params.scales
+            if scalefrom < scaleto:
+                self.view.scaleFromSpinBox.setValue(scalefrom)
+                self.view.scaleToSpinBox.setValue(scaleto)
+            else:
+                QgsMessageLog.logMessage("In scales from >= to", "Gardener", level=Qgis.Warning)
         if params.bins is None:
             self.view.binsCheckBox.setChecked(Qt.Unchecked)
         else:
