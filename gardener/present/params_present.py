@@ -1,5 +1,5 @@
 from qgis.PyQt.QtCore import Qt
-from qgis.core import QgsMessageLog, Qgis
+from qgis.core import QgsMessageLog, Qgis, QgsRasterLayer
 
 
 class ParamsPresenter:
@@ -49,7 +49,10 @@ class ParamsPresenter:
             self.view.maskCheckBox.setChecked(Qt.Unchecked)
         else:
             self.view.maskCheckBox.setChecked(Qt.Checked)
-            self.view.maskLayerComboBox.setLayer(params.mask)
+            if params.mask is QgsRasterLayer:
+                self.view.maskLayerComboBox.setLayer(params.mask)
+            else:
+                QgsMessageLog.logMessage("Mask is not a QgsRasterLayer object", "Gardener", level=Qgis.Warning)
         if params.coefficient >= 0:
             self.view.targetSpinBox.setValue(params.coefficient)
         else:
