@@ -326,7 +326,14 @@
        <item>
         <layout class="QHBoxLayout" name="targetHorizontalLayout">
          <item>
-          <widget class="QDoubleSpinBox" name="targetSpinBox"/>
+          <widget class="QDoubleSpinBox" name="targetSpinBox">
+           <property name="maximum">
+            <double>10000.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="targetHorizontalSpacer">

@@ -50,7 +50,10 @@ class ParamsPresenter:
         else:
             self.view.maskCheckBox.setChecked(Qt.Checked)
             self.view.maskLayerComboBox.setLayer(params.mask)
-        self.view.targetSpinBox.setValue(params.coefficient)
+        if params.coefficient >= 0:
+            self.view.targetSpinBox.setValue(params.coefficient)
+        else:
+            QgsMessageLog.logMessage("Target value coefficient must be a positive number", "Gardener", level=Qgis.Warning)
         if all(map(lambda x: x > 1, params.windows)):
             self.smoothing_windows = params.windows.copy()
             self.view.windowsLineEdit.setText(self.s.join(map(str, params.windows)))
