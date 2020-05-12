@@ -1,4 +1,5 @@
 from scipy.signal import medfilt
+from collections import defaultdict
 
 
 class Parameters:
@@ -73,7 +74,7 @@ class ForcedInvariance:
         return stat
 
     def correlation(self, stat):
-        curve = {i:round(sum(s[i])/len(s[i])) for i in s}
+        curve = {i:round(sum(stat[i])/len(stat[i])) for i in stat}
         self.smoothing(curve)
         return curve
 
@@ -87,7 +88,7 @@ class ForcedInvariance:
     def target_value(self, band):
         return band.mean() * self.params.coefficient
 
-    def recalc(band, curve, index, target):
+    def recalculate(self, band, curve, index, target):
         def curve_value(value):
             return value if value != 0 else 1
         y, x = band.shape

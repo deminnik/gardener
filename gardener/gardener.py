@@ -1,6 +1,8 @@
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
+from qgis.core import QgsApplication
+
 from gardener.view.main_form import MainForm
 from gardener.view.params_form import ParamsForm
 
@@ -10,6 +12,7 @@ from gardener.model.unveiling import Parameters
 class Gardener:
     def __init__(self, iface):
         self.iface = iface
+        self.task_manager = QgsApplication.taskManager()
         self.parameters = Parameters()
         self.main_widget = MainForm(self)
         self.params_widget = ParamsForm(self)
