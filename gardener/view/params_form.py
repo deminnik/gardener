@@ -3,6 +3,7 @@ from functools import partial
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QWidget
+from qgis.core import Qgis
 
 from gardener.present.params_present import ParamsPresenter
 
@@ -14,6 +15,7 @@ class ParamsForm(QWidget):
         self.manager = manager
         self.presenter = ParamsPresenter(self)
         uic.loadUi(self.uifile, self)
+        self.messageBar = self.manager.iface.messageBar()
         self.scalingCheckBox.toggled.connect(
             partial(self.checkbox_toggled, (self.scaleFromSpinBox, self.scaleToSpinBox))
         )
@@ -32,7 +34,12 @@ class ParamsForm(QWidget):
         self.applyButton.clicked.connect(self.applyParameters)
 
     def applyParameters(self):
-        self.presenter.apply_parameters(self.manager.parameters)
+        try:
+            self.presenter.apply_parameters(self.manager.parameters)
+        except:
+            self.messageBar.pushMessage("Error", "Parameters have not applied", level=Qgis.Critical)
+        else:
+            self.messageBar.pushMessage("Success", "Parameters have applied", level=Qgis.Success)
 
     def clearWindowSizes(self):
         self.presenter.clear_window_sizes()
