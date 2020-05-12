@@ -133,3 +133,6 @@ dmypy.json
 
 # Resources
 gardener/resources.py
+
+# Testing
+test/test.py
