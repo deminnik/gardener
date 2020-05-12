@@ -1,3 +1,6 @@
+from scipy.signal import medfilt
+
+
 class Parameters:
     def __init__(self):
         self.__scales = None
@@ -49,3 +52,45 @@ class Parameters:
     windows = property(get_windows, set_windows)
     coefficient = property(get_coefficient, set_coefficient)
     mask = property(get_mask, set_mask)
+
+class ForcedInvariance:
+    def __init__(self, parameters):
+        self.params = parameters
+
+    def __call__(self, image, index):
+        for band in image:
+            stat = self.statistics(band, index)
+            curve = self.correlation(stat)
+            target = self.target_value(band)
+            self.recalculate(band, curve, index, target)
+
+    def statistics(self, band, index):
+        stat = defaultdict(list)
+        y, x = band.shape
+        for i in range(y):
+            for j in range(x):
+                stat[index[i, j]].append(band[i, j])
+        return stat
+
+    def correlation(self, stat):
+        curve = {i:round(sum(s[i])/len(s[i])) for i in s}
+        self.smoothing(curve)
+        return curve
+
+    def smoothing(self, curve):
+        keys = sorted(curve.keys())
+        values = [curve[key] for key in keys]
+        for window in self.params.windows:
+            values = medfilt(values, window)
+        curve = dict(zip(keys, values))
+
+    def target_value(self, band):
+        return band.mean() * self.params.coefficient
+
+    def recalc(band, curve, index, target):
+        def curve_value(value):
+            return value if value != 0 else 1
+        y, x = band.shape
+        for i in range(y):
+            for j in range(x):
+                band[i, j] *= target / curve_value(curve[index[i, j]])
