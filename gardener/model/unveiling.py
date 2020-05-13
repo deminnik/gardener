@@ -1,6 +1,7 @@
 from scipy.signal import medfilt
 from collections import defaultdict
 import numpy as np
+import gdal
 
 
 class Parameters:
@@ -54,6 +55,36 @@ class Parameters:
     windows = property(get_windows, set_windows)
     coefficient = property(get_coefficient, set_coefficient)
     mask = property(get_mask, set_mask)
+
+
+class Mask:
+    def __init__(self, shape):
+        self.__array = np.full(shape, False)
+
+    def add(self, mask):
+        self.__array += mask
+
+
+class Image:
+    def __init__(self, file, masked=True):
+        self.__image = gdal.Open(file)
+        if masked:
+            self.mask = Mask(self.image.shape)
+
+
+class Index(Image):
+    def __init__(self, image_path):
+        super().__init__(image_path)
+
+
+class Imagery(Image):
+    def __init__(self, image_path, index_path):
+        super().__init__(image_path)
+        self.index = Index(index_path)
+
+    def unveiled(self, image_path):
+        self.__new = Image(image_path, masked=False)
+
 
 class ForcedInvariance:
     def __init__(self, parameters):
