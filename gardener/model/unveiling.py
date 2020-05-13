@@ -1,5 +1,6 @@
 from scipy.signal import medfilt
 from collections import defaultdict
+import numpy as np
 
 
 class Parameters:
@@ -59,11 +60,40 @@ class ForcedInvariance:
         self.params = parameters
 
     def __call__(self, image, index):
+        if self.params.scales is not None:
+            index = self.scaling(index, (index.min(), index.max()), self.params.scales)
+        if self.params.bins is not None:
+            self.compression(index, self.params.bins[1])
         for band in image:
-            stat = self.statistics(band, index)
+            temp = band.copy()
+            scales = None
+            if self.params.scales is not None:
+                scales = temp.min(), temp.max()
+                temp = self.scaling(temp, scales, self.params.scales)
+            if self.params.bins is not None:
+                self.compression(temp, self.params.bins[0])
+            stat = self.statistics(temp, index)
             curve = self.correlation(stat)
-            target = self.target_value(band)
-            self.recalculate(band, curve, index, target)
+            target = self.target_value(temp)
+            del temp
+            self.recalculate(band, curve, index, target, scales)
+
+    def scaling(self, value, old, new):
+        omin, omax = old
+        nmin, nmax = new
+        orange = omax - omin
+        nrange = nmax - nmin
+        return ((value - omin) / orange) * nrange + nmin
+
+    def compression(self, raster, step):
+        values = np.sort(np.ravel(raster)).reshape(-1, step)
+        mean = values.mean(axis=1)
+        for i in range(len(mean)):
+            for value in values[i]:
+                indexes = np.argwhere(raster==value)
+                iy = [x[0] for x in indexes]
+                ix = [x[1] for x in indexes]
+                raster[iy, ix] = mean[i]
 
     def statistics(self, band, index):
         stat = defaultdict(list)
@@ -88,8 +118,11 @@ class ForcedInvariance:
     def target_value(self, band):
         return band.mean() * self.params.coefficient
 
-    def recalculate(self, band, curve, index, target):
+    def recalculate(self, band, curve, index, target, scales):
         def curve_value(value):
+            nonlocal scales
+            if scales is not None:
+                value = self.scaling(value, self.params.scales, scales)
             return value if value != 0 else 1
         y, x = band.shape
         for i in range(y):
