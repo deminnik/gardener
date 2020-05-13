@@ -3,8 +3,13 @@ from gardener.model.unveiling import ForcedInvariance, Imagery
 
 
 class FImTask(QgsTask):
-    def __init__(self, algorithm, argument):
-        super().__init__("Task for FIM", QgsTask.CanCancel)
+    def __init__(self, image_name, index_name):
+        title = "Unveiling by FIM"
+        layers = f"image('{image_name}'), index('{index_name}')"
+        name = f"{title}: {layers}"
+        super().__init__(name, QgsTask.CanCancel)
+
+    def configure(self, algorithm, argument):
         self.__fim = algorithm
         self.__img = argument
     
@@ -31,8 +36,9 @@ class MainPresenter:
         image = Imagery(self.__imagery_layer.source(),
                         index_path=self.__index_layer.source())
         fim = ForcedInvariance(params)
-        # fim(image, index)
-        fim_task = FImTask(fim, image)
+        fim_task = FImTask(self.__imagery_layer.name(), 
+                           self.__index_layer.name())
+        fim_task.configure(fim, image)
         fim_task.taskCompleted.connect(self.unveiling_finished)
         self.view.manager.task_manager.addTask(fim_task)
 
