@@ -13,15 +13,25 @@ class MainForm(QWidget):
         self.manager = manager
         self.presenter = MainPresenter(self)
         uic.loadUi(self.uifile, self)
+        self.imageLayerComboBox.currentIndexChanged.connect(self.imageryLayerChoose)
+        self.indexLayerComboBox.currentIndexChanged.connect(self.indexLayerChoose)
         self.paramsButton.clicked.connect(self.openParamsWidget)
-        self.suppressButton.clicked.connect(self.suppressVegetation)
+        self.suppressButton.clicked.connect(self.unveilImage)
 
-    def suppressVegetation(self):
-        self.presenter.suppress_vegetation(self.manager.parameters)
+    def imageryLayerChoose(self):
+        self.presenter.imagery_layer_choose(self.imageLayerComboBox.currentLayer())
 
-    def suppressFinished(self):
+    def indexLayerChoose(self):
+        self.presenter.index_layer_choose(self.indexLayerComboBox.currentLayer())
+
+    def unveilImage(self):
+        self.imageryLayerChoose()
+        self.indexLayerChoose()
+        self.presenter.unveil_image(self.manager.parameters)
+
+    def unveilingFinished(self):
         from qgis.core import QgsMessageLog, Qgis
-        QgsMessageLog.logMessage("Suppress finished!!!", "Gardener", level=Qgis.Info)
+        QgsMessageLog.logMessage("Unveiling finished", "Gardener", level=Qgis.Info)
 
 
     def openParamsWidget(self):

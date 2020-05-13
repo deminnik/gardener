@@ -1,16 +1,16 @@
 from qgis.core import QgsTask
-from gardener.model.unveiling import ForcedInvariance
+from gardener.model.unveiling import ForcedInvariance, Imagery
 
 
 class FImTask(QgsTask):
-    def __init__(self, fim, args):
+    def __init__(self, algorithm, argument):
         super().__init__("Task for FIM", QgsTask.CanCancel)
-        self.fim = fim
-        self.image, self.index = args
+        self.__fim = algorithm
+        self.__img = argument
     
     def run(self):
         try:
-            self.fim(self.image, self.index)
+            self.__fim(self.__img)
         except:
             return False
         else:
@@ -21,15 +21,20 @@ class MainPresenter:
     def __init__(self, view):
         self.view = view
 
-    def suppress_vegetation(self, params):
-        import numpy as np
-        image = np.array([[[1,2], [2,3]], [[1,2], [2,3]]])
-        index = np.array([[0.2, 0.1], [1, 0.3]])
+    def imagery_layer_choose(self, layer):
+        self.__imagery_layer = layer
+
+    def index_layer_choose(self, layer):
+        self.__index_layer = layer
+
+    def unveil_image(self, params):
+        image = Imagery(self.__imagery_layer.source(),
+                        index_path=self.__index_layer.source())
         fim = ForcedInvariance(params)
         # fim(image, index)
-        fim_task = FImTask(fim, (image, index))
-        fim_task.taskCompleted.connect(self.suppress_finished)
+        fim_task = FImTask(fim, image)
+        fim_task.taskCompleted.connect(self.unveiling_finished)
         self.view.manager.task_manager.addTask(fim_task)
 
-    def suppress_finished(self):
-        self.view.suppressFinished()
+    def unveiling_finished(self):
+        self.view.unveilingFinished()

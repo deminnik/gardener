@@ -67,35 +67,61 @@ class Mask:
 
 class Image:
     def __init__(self, file, masked=True):
-        self.__image = gdal.Open(file)
+        self._image = gdal.Open(file)
         if masked:
-            self.mask = Mask(self.image.shape)
+            shape = self._image.RasterYSize, self._image.RasterXSize
+            self.mask = Mask(shape)
 
 
 class Index(Image):
     def __init__(self, image_path):
         super().__init__(image_path)
+        self.__raster = self._image.ReadAsArray()
+
+    def get_raster(self):
+        return self.__raster
+
+    def set_raster(self, raster):
+        self.__raster = raster
+
+    raster = property(get_raster, set_raster)
 
 
 class Imagery(Image):
     def __init__(self, image_path, index_path):
         super().__init__(image_path)
-        self.index = Index(index_path)
+        self.__index = Index(index_path)
+
+    def __getitem__(self, i):
+        i += 1
+        if i > self._image.RasterCount:
+            raise IndexError
+        else:
+            return self._image.GetRasterBand(i).ReadAsArray()
 
     def unveiled(self, image_path):
         self.__new = Image(image_path, masked=False)
+
+    def get_index(self):
+        return self.__index.raster
+
+    def set_index(self, raster):
+        self.__index.raster = raster
+
+    index = property(get_index, set_index)
 
 
 class ForcedInvariance:
     def __init__(self, parameters):
         self.params = parameters
 
-    def __call__(self, image, index):
+    def __call__(self, imagery):
         if self.params.scales is not None:
-            index = self.scaling(index, (index.min(), index.max()), self.params.scales)
+            index_scales = imagery.index.min(), imagery.index.max()
+            imagery.index = self.scaling(imagery.index, index_scales, self.params.scales)
         if self.params.bins is not None:
-            self.compression(index, self.params.bins[1])
-        for band in image:
+            self.compression(imagery.index, self.params.bins[1])
+        for band in imagery:
             temp = band.copy()
             scales = None
             if self.params.scales is not None:
@@ -103,11 +129,11 @@ class ForcedInvariance:
                 temp = self.scaling(temp, scales, self.params.scales)
             if self.params.bins is not None:
                 self.compression(temp, self.params.bins[0])
-            stat = self.statistics(temp, index)
+            stat = self.statistics(temp, imagery.index)
             curve = self.correlation(stat)
             target = self.target_value(temp)
             del temp
-            self.recalculate(band, curve, index, target, scales)
+            self.recalculate(band, curve, imagery.index, target, scales)
 
     def scaling(self, value, old, new):
         omin, omax = old
