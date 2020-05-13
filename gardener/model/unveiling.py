@@ -101,6 +101,11 @@ class Imagery(Image):
 
     def unveiled(self, image_path):
         self.__new = Image(image_path, masked=False)
+        self.__counter = 1
+
+    def save(self, band):
+        self.__new._image.GetRasterBand(self.__counter).WriteArray(band)
+        self.__counter += 1
 
     def get_index(self):
         return self.__index.raster
@@ -134,6 +139,7 @@ class ForcedInvariance:
             target = self.target_value(temp)
             del temp
             self.recalculate(band, curve, imagery.index, target, scales)
+            imagery.save(band)
 
     def scaling(self, value, old, new):
         omin, omax = old
