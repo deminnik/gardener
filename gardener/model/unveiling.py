@@ -1,6 +1,7 @@
 from scipy.signal import medfilt
 from collections import defaultdict
 import numpy as np
+import numpy.ma as ma
 import gdal
 
 
@@ -61,16 +62,17 @@ class Mask:
     def __init__(self, shape):
         self.__array = np.full(shape, False)
 
+    @property
+    def array(self):
+        return self.__array
+
     def add(self, mask):
         self.__array += mask
 
 
 class Image:
-    def __init__(self, file, masked=True):
+    def __init__(self, file):
         self._image = gdal.Open(file)
-        if masked:
-            shape = self._image.RasterYSize, self._image.RasterXSize
-            self.mask = Mask(shape)
 
 
 class Index(Image):
@@ -91,21 +93,31 @@ class Imagery(Image):
     def __init__(self, image_path, index_path):
         super().__init__(image_path)
         self.__index = Index(index_path)
+        shape = self._image.RasterYSize, self._image.RasterXSize
+        self.__mask = Mask(shape)
+        first_band = self._image.GetRasterBand(1)
+        self.__nodata = first_band.GetNoDataValue()
+        self.__mask.add(np.isin(first_band.ReadAsArray(), [self.__nodata]))
 
     def __getitem__(self, i):
         i += 1
         if i > self._image.RasterCount:
             raise IndexError
         else:
-            return self._image.GetRasterBand(i).ReadAsArray()
+            band = self._image.GetRasterBand(i).ReadAsArray()
+            return ma.array(band, mask=self.__mask.array)
 
     def unveiled(self, image_path):
-        self.__new = Image(image_path, masked=False)
+        self.__new = Image(image_path)
         self.__counter = 1
 
     def save(self, band):
         self.__new._image.GetRasterBand(self.__counter).WriteArray(band)
         self.__counter += 1
+
+    @property
+    def mask(self):
+        return self.__mask
 
     def get_index(self):
         return self.__index.raster
@@ -163,7 +175,8 @@ class ForcedInvariance:
         y, x = band.shape
         for i in range(y):
             for j in range(x):
-                stat[index[i, j]].append(band[i, j])
+                if not band[i, j] is ma.masked:
+                    stat[index[i, j]].append(band[i, j])
         return stat
 
     def correlation(self, stat):
@@ -190,4 +203,5 @@ class ForcedInvariance:
         y, x = band.shape
         for i in range(y):
             for j in range(x):
-                band[i, j] *= target / curve_value(curve[index[i, j]])
+                if not band[i, j] is ma.masked:
+                    band[i, j] *= target / curve_value(curve[index[i, j]])
