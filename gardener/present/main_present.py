@@ -23,6 +23,7 @@ class FImTask(QgsTask):
         except:
             return False
         else:
+            del self.__img
             return True
 
 

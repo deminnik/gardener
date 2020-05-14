@@ -97,7 +97,8 @@ class Imagery(Image):
         self.__mask = Mask(shape)
         first_band = self._image.GetRasterBand(1)
         self.__nodata = first_band.GetNoDataValue()
-        self.__mask.add(np.isin(first_band.ReadAsArray(), [self.__nodata]))
+        if not self.__nodata is None:
+            self.__mask.add(np.isin(first_band.ReadAsArray(), [self.__nodata]))
 
     def __getitem__(self, i):
         i += 1
@@ -109,10 +110,21 @@ class Imagery(Image):
 
     def unveiled(self, image_path):
         self.__new = Image(image_path)
+        bands = self._image.RasterCount
+        ysize, xsize = self._image.RasterYSize, self._image.RasterXSize
+        projection, transform = self._image.GetProjection(), self._image.GetGeoTransform()
+        driver = self._image.GetDriver()
+        metadata = driver.GetMetadata()
+        if gdal.DCAP_CREATE in metadata and metadata[gdal.DCAP_CREATE] == "YES":
+            self.__new._image = driver.Create(image_path, xsize, ysize, bands, gdal.GDT_Float64)
+            self.__new._image.SetProjection(projection)
+            self.__new._image.SetGeoTransform(transform)
         self.__counter = 1
 
     def save(self, band):
         self.__new._image.GetRasterBand(self.__counter).WriteArray(band)
+        if not self.__nodata is None:
+            self.__new._image.GetRasterBand(self.__counter).SetNoDataValue(self.__nodata)
         self.__counter += 1
 
     @property
