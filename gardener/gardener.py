@@ -3,8 +3,7 @@ from qgis.PyQt.QtWidgets import QAction
 
 from qgis.core import QgsApplication
 
-from gardener.view.main_form import MainForm
-from gardener.view.params_form import ParamsForm
+from gardener.view.forms import MainForm, ParamsForm
 
 from gardener.model.unveiling import Parameters
 

@@ -53,10 +53,10 @@ class MainPresenter:
             self.view.manager.task_manager.addTask(fim_task)
 
     def unveiling_finished(self, layer_source):
-        self.view.messageBar.pushMessage("Success", "Unveiling completed", level=Qgis.Success)
         layer_name = path.splitext(path.basename(layer_source))[0]
         layer = QgsRasterLayer(layer_source, layer_name)
         self.view.addLayerToPanel(layer)
+        self.view.pushSuccessMessage("Unveiling completed")
 
     def unveiling_error(self):
-        self.view.messageBar.pushMessage("Error", "Unveiling was interrupted", level=Qgis.Critical)
+        self.view.pushErrorMessage("Unveiling was interrupted")
