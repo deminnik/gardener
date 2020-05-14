@@ -167,6 +167,7 @@ class ForcedInvariance:
                 self.compression(temp, self.params.bins[0])
             stat = self.statistics(temp, imagery.index)
             curve = self.correlation(stat)
+            self.smoothing(curve)
             target = self.target_value(temp)
             del temp
             self.recalculate(band, curve, imagery.index, target, scales)
@@ -199,9 +200,7 @@ class ForcedInvariance:
         return stat
 
     def correlation(self, stat):
-        curve = {i:round(sum(stat[i])/len(stat[i])) for i in stat}
-        self.smoothing(curve)
-        return curve
+        return {i:sum(stat[i])/len(stat[i]) for i in stat}
 
     def smoothing(self, curve):
         keys = sorted(curve.keys())
