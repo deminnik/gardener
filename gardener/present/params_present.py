@@ -1,6 +1,8 @@
 from qgis.PyQt.QtCore import Qt
 from qgis.core import QgsMessageLog, Qgis
 
+from gardener.helpers import logger as log
+
 
 class ParamsPresenter:
     def __init__(self, view):
@@ -48,7 +50,7 @@ class ParamsPresenter:
                 self.view.scaleFromSpinBox.setValue(scalefrom)
                 self.view.scaleToSpinBox.setValue(scaleto)
             else:
-                QgsMessageLog.logMessage("In scales from >= to", "Gardener", level=Qgis.Warning)
+                log.warning("In scales from >= to")
         if params.bins is None:
             self.view.binsCheckBox.setChecked(Qt.Unchecked)
         else:
@@ -64,7 +66,7 @@ class ParamsPresenter:
                 self.view.thresholdBottomSpinBox.setValue(bottom)
                 self.view.thresholdTopSpinBox.setValue(top)
             else:
-                QgsMessageLog.logMessage("In thresholds bottom >= top", "Gardener", level=Qgis.Warning)
+                log.warning("In thresholds bottom >= top")
         if params.mask is None:
             self.view.maskCheckBox.setChecked(Qt.Unchecked)
         else:
@@ -73,9 +75,9 @@ class ParamsPresenter:
         if params.coefficient >= 0:
             self.view.targetSpinBox.setValue(params.coefficient)
         else:
-            QgsMessageLog.logMessage("Target value coefficient must be a positive number", "Gardener", level=Qgis.Warning)
+            log.warning("Target value coefficient must be a positive number")
         if all(map(lambda x: x > 1, params.windows)):
             self.smoothing_windows = list(params.windows)
             self.view.windowsLineEdit.setText(self.s.join(map(str, params.windows)))
         else:
-            QgsMessageLog.logMessage("Some window sizes less than or equal 1", "Gardener", level=Qgis.Warning)
+            log.warning("Some window sizes less than or equal 1")
