@@ -29,20 +29,6 @@
    <item>
     <layout class="QHBoxLayout" name="layersFrame">
      <item>
-      <layout class="QVBoxLayout" name="indexVerticalLayout">
-       <item>
-        <widget class="QLabel" name="indexLabel">
-         <property name="text">
-          <string>Index</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QgsMapLayerComboBox" name="indexLayerComboBox"/>
-       </item>
-      </layout>
-     </item>
-     <item>
       <layout class="QVBoxLayout" name="imageVerticalLayout">
        <item>
         <widget class="QLabel" name="imageLabel">
@@ -53,6 +39,20 @@
        </item>
        <item>
         <widget class="QgsMapLayerComboBox" name="imageLayerComboBox"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="indexVerticalLayout">
+       <item>
+        <widget class="QLabel" name="indexLabel">
+         <property name="text">
+          <string>Index</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QgsMapLayerComboBox" name="indexLayerComboBox"/>
        </item>
       </layout>
      </item>
