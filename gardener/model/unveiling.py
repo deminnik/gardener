@@ -67,7 +67,7 @@ class Mask:
         return self.__array
 
     def add(self, mask):
-        self.__array += mask
+        self.__array += mask.astype(bool)
 
 
 class Image:
@@ -133,6 +133,13 @@ class ForcedInvariance:
         self.params = parameters
 
     def __call__(self, imagery):
+        if not self.params.mask is None:
+            mask_array = gdal.Open(self.params.mask.source()).ReadAsArray()
+            imagery.mask.add(mask_array)
+        if not self.params.thresholds is None:
+            for band in imagery:
+                imagery.mask.add(imagery.index < self.params.thresholds[0])
+                imagery.mask.add(imagery.index > self.params.thresholds[1])
         if self.params.scales is not None:
             index_scales = imagery.index.min(), imagery.index.max()
             imagery.index = self.scaling(imagery.index, index_scales, self.params.scales)
