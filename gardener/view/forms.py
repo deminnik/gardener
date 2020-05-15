@@ -42,7 +42,9 @@ class MainForm(Form):
         self.showButton.clicked.connect(self.openPlotWidget)
 
     def imageryLayerChoose(self):
-        self.presenter.imagery_layer_choose(self.imageLayerComboBox.currentLayer())
+        layer = self.imageLayerComboBox.currentLayer()
+        self.imageRasterBandComboBox.setLayer(layer)
+        self.presenter.imagery_layer_choose(layer)
 
     def indexLayerChoose(self):
         self.presenter.index_layer_choose(self.indexLayerComboBox.currentLayer())
@@ -60,7 +62,10 @@ class MainForm(Form):
         self.manager.params_widget.show()
 
     def openPlotWidget(self):
-        self.manager.plot_widget.show()
+        band = self.imageRasterBandComboBox.currentBand()
+        imagery = self.imageLayerComboBox.currentLayer()
+        index = self.indexLayerComboBox.currentLayer()
+        self.manager.plot_widget.plotStatistics(band, imagery, index, self.manager.parameters)
 
 
 class ParamsForm(Form):
@@ -138,9 +143,11 @@ class PlotForm(Form):
 
     def __init__(self, manager, parent=None):
         super().__init__("plot.ui", PlotPresenter, manager, parent)
-        frame = PlotForm.PlotFrame([[1,2,3,4,5,6,7,8,9], [1,2,3,4,5,6,7,8,9]])
-        self.addTab(frame, "Example")
+
+    def plotStatistics(self, band, imagery, index, params):
+        self.presenter.get_statistics(band, imagery, index, params)
 
     def addTab(self, content, title):
         self.tabWidget.addTab(content, title)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
+        self.show()
