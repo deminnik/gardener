@@ -167,7 +167,7 @@ class ForcedInvariance:
                 self.compression(temp, self.params.bins[0])
             stat = self.statistics(temp, imagery.index)
             curve = self.correlation(stat)
-            self.smoothing(curve)
+            curve = self.smoothing(curve)
             target = self.target_value(temp)
             del temp
             self.recalculate(band, curve, imagery.index, target, scales)
@@ -207,7 +207,7 @@ class ForcedInvariance:
         values = [curve[key] for key in keys]
         for window in self.params.windows:
             values = medfilt(values, window)
-        curve = dict(zip(keys, values))
+        return dict(zip(keys, values))
 
     def target_value(self, band):
         return band.mean() * self.params.coefficient

@@ -40,6 +40,8 @@ class MainForm(Form):
         self.paramsButton.clicked.connect(self.openParamsWidget)
         self.suppressButton.clicked.connect(self.unveilImage)
         self.showButton.clicked.connect(self.openPlotWidget)
+        if not self.imageLayerComboBox.currentLayer() is None:
+            self.imageryLayerChoose()
 
     def imageryLayerChoose(self):
         layer = self.imageLayerComboBox.currentLayer()
@@ -117,13 +119,14 @@ class ParamsForm(Form):
 class PlotForm(Form):
 
     class PlotFrame(QWidget):
-        def __init__(self, curve, parent=None):
+        def __init__(self, curve, cloud, parent=None):
             super().__init__(parent)
             self.__figure = Figure()
             self.__canvas = FigureCanvas(self.__figure)
             self.__toolbar = NavigationToolbar(self.__canvas, self)
             self.__set_layout()
             self.__set_figure()
+            self.__plot_cloud(cloud)
             self.__plot_curve(curve)
             self.__canvas.draw()
 
@@ -138,7 +141,10 @@ class PlotForm(Form):
             self.__axes.clear()
 
         def __plot_curve(self, curve):
-            self.__axes.plot(curve[0], curve[1], linewidth=1, color='k')
+            self.__axes.plot(curve.x, curve.y, linewidth=0.5, color='k')
+
+        def __plot_cloud(self, cloud):
+            self.__axes.scatter(cloud.x, cloud.y, s=0.2, c='y')
             
 
     def __init__(self, manager, parent=None):

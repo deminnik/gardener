@@ -19,8 +19,8 @@ class Plot:
 
 class Curve(Plot):
     def __init__(self, data):
-        self._x = np.array(list(data.keys()))
-        self._y = np.array(data[key] for key in self._x)
+        self._x = list(sorted(data.keys()))
+        self._y = [data[key] for key in self._x]
 
 
 class Cloud(Plot):
@@ -44,5 +44,5 @@ class ForcedInvariancePlot(ForcedInvariance):
             self.compression(temp, self.params.bins[0])
         stat = self.statistics(temp, imagery.index)
         curve = self.correlation(stat)
-        self.smoothing(curve)
+        curve = self.smoothing(curve)
         return Curve(curve), Cloud(temp, imagery.index)
