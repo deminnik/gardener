@@ -29,6 +29,9 @@ class Form(QWidget):
     def pushSuccessMessage(self, message):
         self.messageBar.pushMessage("Success", message, level=Qgis.Success)
 
+    def pushWarningMessage(self, message):
+        self.messageBar.pushMessage("Warning", message, level=Qgis.Warning)
+
     def pushErrorMessage(self, message):
         self.messageBar.pushMessage("Error", message, level=Qgis.Critical)
 

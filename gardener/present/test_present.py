@@ -1,6 +1,8 @@
 from qgis.core import QgsTask
 
-from gardener.model.unveiling import Image
+from qgis.PyQt.QtWidgets import QFileDialog
+
+from gardener.model.unveiling import Imagery, Raster, ForcedInvariance
 from gardener.model.evaluating import Comparator
 
 from gardener.helpers import logger as log
@@ -16,13 +18,19 @@ class TestTask(QgsTask):
     def presenter(self, presenter):
         self.__presenter = presenter
 
-    def configure(self, comparator, imagery):
+    def configure(self, comparator, fim, imagery, standard, temp):
         self.__comparator = comparator
-        self.__img = imagery._image.ReadAsArray()
+        self.__fim = fim
+        self.__imagery = imagery
+        self.__standard = standard
+        self.__unveiled = temp
     
     def run(self):
         try:
-            self.__similarity = self.__comparator(self.__img, self.__img)
+            self.__fim(self.__imagery)
+            result = Raster(self.__unveiled)
+            self.__similarity = self.__comparator(result.raster, 
+                                                    self.__standard.raster)
         except Exception as e:
             raise e
         else:
@@ -42,11 +50,16 @@ class TestPresenter:
         self.view = view
 
     def test_algorithm(self):
-        image = Image(self.__imagery_layer.source())
+        unveiled = QFileDialog.getSaveFileName(self.view)[0]
+        imagery = Imagery(self.__imagery_layer.source(), 
+                      index_path=self.__index_layer.source())
+        imagery.unveiled(unveiled)
+        standard = Raster(self.__standard_layer.source())
+        fim = ForcedInvariance(self.view.manager.parameters)
         comparator = Comparator(self.__threshold)
-        test_task = TestTask(self.__imagery_layer.name(), self.__imagery_layer.name())
+        test_task = TestTask(self.__imagery_layer.name(), self.__standard_layer.name())
         test_task.presenter(self)
-        test_task.configure(comparator, image)
+        test_task.configure(comparator, fim, imagery, standard, unveiled)
         self.view.manager.task_manager.addTask(test_task)
 
     def testing_finished(self, result):
