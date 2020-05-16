@@ -149,6 +149,7 @@ class PlotForm(Form):
 
     def __init__(self, manager, parent=None):
         super().__init__("plot.ui", PlotPresenter, manager, parent)
+        self.tabWidget.tabCloseRequested.connect(self.closeTab)
 
     def plotStatistics(self, band, imagery, index, params):
         self.presenter.get_statistics(band, imagery, index, params)
@@ -157,3 +158,6 @@ class PlotForm(Form):
         self.tabWidget.addTab(content, title)
         self.tabWidget.setCurrentIndex(self.tabWidget.count()-1)
         self.show()
+
+    def closeTab(self, index):
+        self.tabWidget.removeTab(index)
