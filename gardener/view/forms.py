@@ -171,3 +171,30 @@ class PlotForm(Form):
 class TestForm(Form):
     def __init__(self, manager, parent=None):
         super().__init__("test.ui", TestPresenter, manager, parent)
+        self.imageryLayerComboBox.currentIndexChanged.connect(self.imageryLayerChoose)
+        self.indexLayerComboBox.currentIndexChanged.connect(self.indexLayerChoose)
+        self.standardLayerComboBox.currentIndexChanged.connect(self.standardLayerChoose)
+        self.thresholdSpinBox.valueChanged.connect(self.thresholdValueChange)
+        self.testButton.clicked.connect(self.testAlgorithm)
+
+    def testAlgorithm(self):
+        self.imageryLayerChoose()
+        self.indexLayerChoose()
+        self.standardLayerChoose()
+        self.thresholdValueChange()
+        self.presenter.test_algorithm()
+
+    def showTestResult(self, result):
+        self.resultNumber.display(result)
+
+    def imageryLayerChoose(self):
+        self.presenter.imagery_layer_choose(self.imageryLayerComboBox.currentLayer())
+
+    def indexLayerChoose(self):
+        self.presenter.index_layer_choose(self.indexLayerComboBox.currentLayer())
+
+    def standardLayerChoose(self):
+        self.presenter.standard_layer_choose(self.standardLayerComboBox.currentLayer())
+
+    def thresholdValueChange(self):
+        self.presenter.threshold_value_change(self.thresholdSpinBox.value())
