@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from gardener.present.main_present import MainPresenter
 from gardener.present.params_present import ParamsPresenter
 from gardener.present.plot_present import PlotPresenter
+from gardener.present.test_present import TestPresenter
 
 
 class Form(QWidget):
@@ -40,6 +41,7 @@ class MainForm(Form):
         self.paramsButton.clicked.connect(self.openParamsWidget)
         self.suppressButton.clicked.connect(self.unveilImage)
         self.showButton.clicked.connect(self.openPlotWidget)
+        self.testButton.clicked.connect(self.openTestWidget)
         if not self.imageLayerComboBox.currentLayer() is None:
             self.imageryLayerChoose()
 
@@ -68,6 +70,9 @@ class MainForm(Form):
         imagery = self.imageLayerComboBox.currentLayer()
         index = self.indexLayerComboBox.currentLayer()
         self.manager.plot_widget.plotStatistics(band, imagery, index, self.manager.parameters)
+
+    def openTestWidget(self):
+        self.manager.test_widget.show()
 
 
 class ParamsForm(Form):
@@ -161,3 +166,8 @@ class PlotForm(Form):
 
     def closeTab(self, index):
         self.tabWidget.removeTab(index)
+
+
+class TestForm(Form):
+    def __init__(self, manager, parent=None):
+        super().__init__("test.ui", TestPresenter, manager, parent)
