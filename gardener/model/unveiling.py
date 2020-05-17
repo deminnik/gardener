@@ -1,3 +1,4 @@
+from pathlib import Path
 from scipy.signal import medfilt
 from collections import defaultdict
 import numpy as np
@@ -72,10 +73,21 @@ class Mask:
 
 class Image:
     def __init__(self, file):
+        self.__file = Path(file)
         self._image = gdal.Open(file)
+        self._extension = self.__file.suffix
+        self._name = self.__file.stem
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def extension(self):
+        return self._extension
 
 
-class Index(Image):
+class Raster(Image):
     def __init__(self, image_path):
         super().__init__(image_path)
         self.__raster = self._image.ReadAsArray()
@@ -92,7 +104,7 @@ class Index(Image):
 class Imagery(Image):
     def __init__(self, image_path, index_path):
         super().__init__(image_path)
-        self.__index = Index(index_path)
+        self.__index = Raster(index_path)
         shape = self._image.RasterYSize, self._image.RasterXSize
         self.__mask = Mask(shape)
         first_band = self._image.GetRasterBand(1)

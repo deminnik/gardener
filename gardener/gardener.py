@@ -3,7 +3,7 @@ from qgis.PyQt.QtWidgets import QAction
 
 from qgis.core import QgsApplication
 
-from gardener.view.forms import MainForm, ParamsForm, PlotForm
+from gardener.view.forms import MainForm, ParamsForm, PlotForm, TestForm
 
 from gardener.model.unveiling import Parameters
 
@@ -16,6 +16,7 @@ class Gardener:
         self.main_widget = MainForm(self)
         self.params_widget = ParamsForm(self)
         self.plot_widget = PlotForm(self)
+        self.test_widget = TestForm(self)
 
     def initGui(self):
         self.action = QAction(

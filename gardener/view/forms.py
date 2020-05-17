@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from gardener.present.main_present import MainPresenter
 from gardener.present.params_present import ParamsPresenter
 from gardener.present.plot_present import PlotPresenter
+from gardener.present.test_present import TestPresenter
 
 
 class Form(QWidget):
@@ -28,6 +29,9 @@ class Form(QWidget):
     def pushSuccessMessage(self, message):
         self.messageBar.pushMessage("Success", message, level=Qgis.Success)
 
+    def pushWarningMessage(self, message):
+        self.messageBar.pushMessage("Warning", message, level=Qgis.Warning)
+
     def pushErrorMessage(self, message):
         self.messageBar.pushMessage("Error", message, level=Qgis.Critical)
 
@@ -40,6 +44,7 @@ class MainForm(Form):
         self.paramsButton.clicked.connect(self.openParamsWidget)
         self.suppressButton.clicked.connect(self.unveilImage)
         self.showButton.clicked.connect(self.openPlotWidget)
+        self.testButton.clicked.connect(self.openTestWidget)
         if not self.imageLayerComboBox.currentLayer() is None:
             self.imageryLayerChoose()
 
@@ -68,6 +73,9 @@ class MainForm(Form):
         imagery = self.imageLayerComboBox.currentLayer()
         index = self.indexLayerComboBox.currentLayer()
         self.manager.plot_widget.plotStatistics(band, imagery, index, self.manager.parameters)
+
+    def openTestWidget(self):
+        self.manager.test_widget.show()
 
 
 class ParamsForm(Form):
@@ -161,3 +169,35 @@ class PlotForm(Form):
 
     def closeTab(self, index):
         self.tabWidget.removeTab(index)
+
+
+class TestForm(Form):
+    def __init__(self, manager, parent=None):
+        super().__init__("test.ui", TestPresenter, manager, parent)
+        self.imageryLayerComboBox.currentIndexChanged.connect(self.imageryLayerChoose)
+        self.indexLayerComboBox.currentIndexChanged.connect(self.indexLayerChoose)
+        self.standardLayerComboBox.currentIndexChanged.connect(self.standardLayerChoose)
+        self.thresholdSpinBox.valueChanged.connect(self.thresholdValueChange)
+        self.testButton.clicked.connect(self.testAlgorithm)
+
+    def testAlgorithm(self):
+        self.imageryLayerChoose()
+        self.indexLayerChoose()
+        self.standardLayerChoose()
+        self.thresholdValueChange()
+        self.presenter.test_algorithm()
+
+    def showTestResult(self, result):
+        self.resultNumber.display(result)
+
+    def imageryLayerChoose(self):
+        self.presenter.imagery_layer_choose(self.imageryLayerComboBox.currentLayer())
+
+    def indexLayerChoose(self):
+        self.presenter.index_layer_choose(self.indexLayerComboBox.currentLayer())
+
+    def standardLayerChoose(self):
+        self.presenter.standard_layer_choose(self.standardLayerComboBox.currentLayer())
+
+    def thresholdValueChange(self):
+        self.presenter.threshold_value_change(self.thresholdSpinBox.value())
