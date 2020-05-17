@@ -23,6 +23,16 @@ class ScalingMethod(unittest.TestCase):
         new = ForcedInvariance.scaling(None, array, old_range, new_range)
         self.assertTrue(np.array_equal(new, check_array))
 
+    def test_scaling_equivalence_of_transformations(self):
+        number = 35
+        old_range = 0, 100
+        new_range = 0, 1
+        new_number = ForcedInvariance.scaling(None, number, old_range, new_range)
+        number /= 5
+        new_number /= 5
+        old = ForcedInvariance.scaling(None, new_number, new_range, old_range)
+        self.assertAlmostEqual(old, number)
+
 
 class StatisticsMethod(unittest.TestCase):
     def test_statistics_without_masks(self):
