@@ -1,4 +1,4 @@
-from qgis.core import QgsApplication
+from qgis.core import QgsApplication, QgsProject, QgsMapLayer
 
 from gardener.view.forms import MainForm, ParamsForm, PlotForm, TestForm
 
@@ -10,7 +10,8 @@ class PluginManager:
         self.iface = iface
         self.task_manager = QgsApplication.taskManager()
         self.parameters = Parameters()
-        self.main_widget = MainForm(self)
+        count = QgsProject.instance().count()
+        self.main_widget = MainForm(self, count)
         self.params_widget = ParamsForm(self, parent=self.main_widget)
         self.plot_widget = PlotForm(self, parent=self.main_widget)
         self.test_widget = TestForm(self, parent=self.main_widget)

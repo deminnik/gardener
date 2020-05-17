@@ -16,6 +16,8 @@ from gardener.present.params_present import ParamsPresenter
 from gardener.present.plot_present import PlotPresenter
 from gardener.present.test_present import TestPresenter
 
+from gardener.helpers import logger as log
+
 
 class Form(QWidget):
     def __init__(self, uifile, presenter, manager, parent=None):
@@ -26,6 +28,10 @@ class Form(QWidget):
         self.manager = manager
         self.presenter = presenter(self)
         self.messageBar = self.manager.iface.messageBar()
+
+    def toggleControlState(self, controls, state):
+        for control in controls:
+            control.setEnabled(state)
 
     def pushSuccessMessage(self, message):
         self.messageBar.pushMessage("Success", message, level=Qgis.Success)
@@ -38,9 +44,10 @@ class Form(QWidget):
 
 
 class MainForm(Form):
-    def __init__(self, manager, parent=None):
+    def __init__(self, manager, layers_count, parent=None):
         super().__init__("main.ui", MainPresenter, manager, parent)
         self.imageLayerComboBox.currentIndexChanged.connect(self.imageryLayerChoose)
+        self.imageLayerComboBox.currentIndexChanged.connect(self.layerAdd)
         self.indexLayerComboBox.currentIndexChanged.connect(self.indexLayerChoose)
         self.paramsButton.clicked.connect(self.openParamsWidget)
         self.suppressButton.clicked.connect(self.unveilImage)
@@ -48,6 +55,14 @@ class MainForm(Form):
         self.testButton.clicked.connect(self.openTestWidget)
         if not self.imageLayerComboBox.currentLayer() is None:
             self.imageryLayerChoose()
+        if not layers_count:
+            self.toggleControlState((self.suppressButton, self.showButton, self.testButton), False)
+
+    def layerAdd(self):
+        count = self.imageLayerComboBox.count()
+        state = True if count else False
+        if state != self.suppressButton.isEnabled():
+            self.toggleControlState((self.suppressButton, self.showButton, self.testButton), state)
 
     def imageryLayerChoose(self):
         layer = self.imageLayerComboBox.currentLayer()
@@ -96,16 +111,16 @@ class ParamsForm(Form):
     def __init__(self, manager, parent=None):
         super().__init__("params.ui", ParamsPresenter, manager, parent)
         self.scalingCheckBox.toggled.connect(
-            partial(self.checkbox_toggled, (self.scaleFromSpinBox, self.scaleToSpinBox))
+            partial(self.toggleControlState, (self.scaleFromSpinBox, self.scaleToSpinBox))
         )
         self.binsCheckBox.toggled.connect(
-            partial(self.checkbox_toggled, (self.binXSpinBox, self.binYSpinBox))
+            partial(self.toggleControlState, (self.binXSpinBox, self.binYSpinBox))
         )
         self.thresholdsCheckBox.toggled.connect(
-            partial(self.checkbox_toggled, (self.thresholdBottomSpinBox, self.thresholdTopSpinBox))
+            partial(self.toggleControlState, (self.thresholdBottomSpinBox, self.thresholdTopSpinBox))
         )
         self.maskCheckBox.toggled.connect(
-            partial(self.checkbox_toggled, (self.maskLayerComboBox,))
+            partial(self.toggleControlState, (self.maskLayerComboBox,))
         )
         self.scaleFromSpinBox.valueChanged.connect(self.change_range)
         self.windowAddButton.clicked.connect(self.addWindowSize)
@@ -128,10 +143,6 @@ class ParamsForm(Form):
 
     def change_range(self, value):
         self.scaleToSpinBox.setMinimum(value+self.scaleToSpinBox.singleStep())
-
-    def checkbox_toggled(self, controls, state):
-        for control in controls:
-            control.setEnabled(state)
 
     def showEvent(self, e):
         self.presenter.init_window(self.manager.parameters)
@@ -189,10 +200,17 @@ class TestForm(Form):
     def __init__(self, manager, parent=None):
         super().__init__("test.ui", TestPresenter, manager, parent)
         self.imageryLayerComboBox.currentIndexChanged.connect(self.imageryLayerChoose)
+        self.imageryLayerComboBox.currentIndexChanged.connect(self.layerAdd)
         self.indexLayerComboBox.currentIndexChanged.connect(self.indexLayerChoose)
         self.standardLayerComboBox.currentIndexChanged.connect(self.standardLayerChoose)
         self.thresholdSpinBox.valueChanged.connect(self.thresholdValueChange)
         self.testButton.clicked.connect(self.testAlgorithm)
+
+    def layerAdd(self):
+        count = self.imageryLayerComboBox.count()
+        state = True if count else False
+        if state != self.testButton.isEnabled():
+            self.toggleControlState((self.testButton,), state)
 
     def testAlgorithm(self):
         self.imageryLayerChoose()
