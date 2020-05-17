@@ -1,30 +1,10 @@
 from functools import partial
 from os import path
 
-from qgis.core import QgsTask, QgsRasterLayer, Qgis
+from qgis.core import QgsRasterLayer, Qgis
 
 from gardener.model.unveiling import ForcedInvariance, Imagery
-
-
-class FImTask(QgsTask):
-    def __init__(self, image_name, index_name):
-        title = "Unveiling by FIM"
-        layers = f"image('{image_name}'), index('{index_name}')"
-        name = f"{title}: {layers}"
-        super().__init__(name, QgsTask.CanCancel)
-
-    def configure(self, algorithm, argument):
-        self.__fim = algorithm
-        self.__img = argument
-    
-    def run(self):
-        try:
-            self.__fim(self.__img)
-        except:
-            return False
-        else:
-            del self.__img
-            return True
+from gardener.helpers.tasks import FImTask
 
 
 class MainPresenter:
