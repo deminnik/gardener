@@ -6,11 +6,12 @@ class Comparator:
         self.__threshold = threshold
 
     def __call__(self, image, model):
-        simcube = self.similarity_measure(image, model)
-        distmatrix = self.distance_calculation(simcube)
-        simmatrix = self.similarity_filter(distmatrix)
-        similarity = self.similarity_calculation(simmatrix)
-        return similarity
+        if image.ndim == 3 and model.ndim == 3:
+            simcube = self.similarity_measure(image, model)
+            distmatrix = self.distance_calculation(simcube)
+            simmatrix = self.similarity_filter(distmatrix)
+            similarity = self.similarity_calculation(simmatrix)
+            return similarity
 
     def similarity_measure(self, image, model):
         ncube = np.empty(image.shape)
