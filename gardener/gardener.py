@@ -1,22 +1,12 @@
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
-from qgis.core import QgsApplication
-
-from gardener.view.forms import MainForm, ParamsForm, PlotForm, TestForm
-
-from gardener.model.unveiling import Parameters
+from gardener.helpers.manager import PluginManager
 
 
 class Gardener:
     def __init__(self, iface):
         self.iface = iface
-        self.task_manager = QgsApplication.taskManager()
-        self.parameters = Parameters()
-        self.main_widget = MainForm(self)
-        self.params_widget = ParamsForm(self)
-        self.plot_widget = PlotForm(self)
-        self.test_widget = TestForm(self)
 
     def initGui(self):
         self.action = QAction(
@@ -33,4 +23,5 @@ class Gardener:
         self.iface.removeToolBarIcon(self.action)
 
     def run(self):
-        self.main_widget.show()
+        manager = PluginManager(self.iface)
+        manager.main_widget.show()

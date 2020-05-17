@@ -2,7 +2,8 @@ from os import path
 from functools import partial
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QWidget, QFileDialog, QVBoxLayout
+from qgis.PyQt.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QMessageBox
+from qgis.PyQt.QtCore import Qt
 from qgis.core import Qgis
 from qgis.core import QgsProject
 
@@ -18,7 +19,7 @@ from gardener.present.test_present import TestPresenter
 
 class Form(QWidget):
     def __init__(self, uifile, presenter, manager, parent=None):
-        super().__init__(parent)
+        super().__init__(parent=parent, flags=Qt.Window)
         uipath = "ui"
         ui = path.join(path.dirname(__file__), f"{uipath}/{uifile}")
         uic.loadUi(ui, self)
@@ -76,6 +77,19 @@ class MainForm(Form):
 
     def openTestWidget(self):
         self.manager.test_widget.show()
+
+    def closeEvent(self, e):
+        result = QMessageBox.question(self, 
+                                      "Confirm Exit", 
+                                      "Are you sure you want to exit plugin Gardener?", 
+                                      QMessageBox.Yes | QMessageBox.No, 
+                                      QMessageBox.No)
+        if result == QMessageBox.Yes:
+            self.manager.exitPlugin()
+            e.accept()
+            QWidget.closeEvent(self, e)
+        else:
+            e.ignore()
 
 
 class ParamsForm(Form):
