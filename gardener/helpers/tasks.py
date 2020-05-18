@@ -41,7 +41,7 @@ class PlotTask(QgsTask):
     
     def run(self):
         try:
-            self.__curve, self.__cloud = self.__fim(self.__band, self.__img)
+            self.__curve, self.__cloud = self.__fim(self.__band-1, self.__img)
         except Exception as e:
             raise e
         else:
