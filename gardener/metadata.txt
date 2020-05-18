@@ -8,6 +8,8 @@ email=64067860+deminnik@users.noreply.github.com
 
 about=Plugin for suppressing vegetation in remote sensing images using the Forced Invariance Method
 
+icon=gardener.png
+
 repository=https://github.com/deminnik/gardener
 
 category=Raster

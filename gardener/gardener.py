@@ -1,3 +1,5 @@
+from os import path
+
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
@@ -10,7 +12,7 @@ class Gardener:
 
     def initGui(self):
         self.action = QAction(
-            QIcon(":/plugins/gardener/icon.png"),
+            QIcon(path.join(path.dirname(__file__), "gardener.png")),
             "Suppress vegetation",
             self.iface.mainWindow()
         )
