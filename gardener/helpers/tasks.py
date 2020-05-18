@@ -42,8 +42,8 @@ class PlotTask(QgsTask):
     def run(self):
         try:
             self.__curve, self.__cloud = self.__fim(self.__band-1, self.__img)
-        except Exception as e:
-            raise e
+        except:
+            return False
         else:
             return True
 
@@ -51,10 +51,8 @@ class PlotTask(QgsTask):
         if result:
             frame = self.__presenter.view.PlotFrame(self.__curve, self.__cloud)
             self.__presenter.displaying_finished(self.__band, frame)
-
-    def cancel(self):
-        self.__presenter.displaying_error()
-        super().cancel()
+        else:
+            self.__presenter.displaying_error()
 
 
 class TestTask(QgsTask):
@@ -80,15 +78,13 @@ class TestTask(QgsTask):
             result = Raster(self.__unveiled)
             self.__similarity = self.__comparator(result.raster, 
                                                     self.__standard.raster)
-        except Exception as e:
-            raise e
+        except:
+            return False
         else:
             return True
 
     def finished(self, result):
         if result:
             self.__presenter.testing_finished(self.__similarity)
-
-    def cancel(self):
-        self.__presenter.testing_error()
-        super().cancel()
+        else:
+            self.__presenter.testing_error()

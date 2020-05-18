@@ -28,6 +28,7 @@ class Form(QWidget):
         self.manager = manager
         self.presenter = presenter(self)
         self.messageBar = self.manager.iface.messageBar()
+        self.messageTitle = "Gardener plugin"
 
     def saveFileDialog(self, driver="All Files", extension=".*"):
         title = "File save"
@@ -46,13 +47,16 @@ class Form(QWidget):
             control.setEnabled(state)
 
     def pushSuccessMessage(self, message):
-        self.messageBar.pushMessage("Success", message, level=Qgis.Success)
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Success)
+
+    def pushInfoMessage(self, message):
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Info)
 
     def pushWarningMessage(self, message):
-        self.messageBar.pushMessage("Warning", message, level=Qgis.Warning)
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Warning)
 
     def pushErrorMessage(self, message):
-        self.messageBar.pushMessage("Error", message, level=Qgis.Critical)
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Critical)
 
 
 class MainForm(Form):
@@ -107,7 +111,9 @@ class MainForm(Form):
     def closeEvent(self, e):
         try:
             self.manager.exitPlugin()
-        except:
+        except Exception as e:
+            self.pushErrorMessage(str(e))
+            log.error(str(e))
             e.ignore()
         else:
             e.accept()
@@ -132,12 +138,7 @@ class ParamsForm(Form):
         self.applyButton.clicked.connect(self.applyParameters)
 
     def applyParameters(self):
-        try:
-            self.presenter.apply_parameters(self.manager.parameters)
-        except:
-            self.pushErrorMessage("Parameters have not applied")
-        else:
-            self.pushSuccessMessage("Parameters have applied")
+        self.presenter.apply_parameters(self.manager.parameters)
 
     def clearWindowSizes(self):
         self.presenter.clear_window_sizes()
