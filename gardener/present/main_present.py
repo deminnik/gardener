@@ -17,10 +17,12 @@ class MainPresenter:
     def index_layer_choose(self, layer):
         self.__index_layer = layer
 
-    def unveil_image(self, result, params):
+    def unveil_image(self, params):
+        image = Imagery(self.__imagery_layer.source(),
+                        index_path=self.__index_layer.source())
+        result = self.view.saveFileDialog(extension=image.extension, 
+                                          driver=image.driver)
         if result:
-            image = Imagery(self.__imagery_layer.source(),
-                            index_path=self.__index_layer.source())
             image.unveiled(result)
             fim = ForcedInvariance(params)
             fim_task = FImTask(self.__imagery_layer.name(), 

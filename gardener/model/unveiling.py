@@ -67,8 +67,16 @@ class Image:
     def __init__(self, file):
         self.__file = Path(file)
         self._image = gdal.Open(file)
+        if self._image:
+            self._driver = self._image.GetDriver().ShortName
+        else:
+            self._driver = ""
         self._extension = self.__file.suffix
         self._name = self.__file.stem
+
+    @property
+    def driver(self):
+        return self._driver if self._driver else "Unknown"
 
     @property
     def name(self):

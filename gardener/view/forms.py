@@ -29,6 +29,18 @@ class Form(QWidget):
         self.presenter = presenter(self)
         self.messageBar = self.manager.iface.messageBar()
 
+    def saveFileDialog(self, driver="All Files", extension=".*"):
+        title = "File save"
+        directory = QgsProject.instance().homePath()
+        filters = f"{driver} (*{extension})"
+        result = QFileDialog.getSaveFileName(self, title, directory, filters)[0]
+        if result:
+            if extension != ".*" and result[-len(extension):] != extension:
+                result += extension
+            return result
+        else:
+            return ""
+
     def toggleControlState(self, controls, state):
         for control in controls:
             control.setEnabled(state)
@@ -73,10 +85,9 @@ class MainForm(Form):
         self.presenter.index_layer_choose(self.indexLayerComboBox.currentLayer())
 
     def unveilImage(self):
-        result_path = QFileDialog.getSaveFileName(self)[0]
         self.imageryLayerChoose()
         self.indexLayerChoose()
-        self.presenter.unveil_image(result_path, self.manager.parameters)
+        self.presenter.unveil_image(self.manager.parameters)
 
     def addLayerToPanel(self, layer):
         QgsProject.instance().addMapLayer(layer)
