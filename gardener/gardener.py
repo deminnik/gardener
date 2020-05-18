@@ -9,6 +9,7 @@ from gardener.helpers.manager import PluginManager
 class Gardener:
     def __init__(self, iface):
         self.iface = iface
+        self.manager = PluginManager(self.iface)
 
     def initGui(self):
         self.action = QAction(
@@ -25,5 +26,4 @@ class Gardener:
         self.iface.removeToolBarIcon(self.action)
 
     def run(self):
-        manager = PluginManager(self.iface)
-        manager.main_widget.show()
+        self.manager.main_widget.show()

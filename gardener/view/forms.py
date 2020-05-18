@@ -105,17 +105,13 @@ class MainForm(Form):
         self.manager.test_widget.show()
 
     def closeEvent(self, e):
-        result = QMessageBox.question(self, 
-                                      "Confirm Exit", 
-                                      "Are you sure you want to exit plugin Gardener?", 
-                                      QMessageBox.Yes | QMessageBox.No, 
-                                      QMessageBox.No)
-        if result == QMessageBox.Yes:
+        try:
             self.manager.exitPlugin()
+        except:
+            e.ignore()
+        else:
             e.accept()
             QWidget.closeEvent(self, e)
-        else:
-            e.ignore()
 
 
 class ParamsForm(Form):
