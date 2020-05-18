@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>300</height>
+    <height>235</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>300</height>
+    <height>235</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -84,58 +84,64 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="binVerticalLayout">
+      <layout class="QVBoxLayout" name="thresholdsFrame">
        <item>
-        <widget class="QCheckBox" name="binsCheckBox">
+        <widget class="QCheckBox" name="thresholdsCheckBox">
          <property name="text">
-          <string>Bins</string>
+          <string>Thresholds</string>
          </property>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="binHorizontalLayout">
+        <layout class="QHBoxLayout" name="thresholdsHorizontalLayout">
          <item>
-          <widget class="QLabel" name="binXLabel">
+          <widget class="QLabel" name="thresholdBottomLabel">
            <property name="text">
-            <string>x</string>
+            <string>bottom</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="binXSpinBox">
+          <widget class="QDoubleSpinBox" name="thresholdBottomSpinBox">
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
            <property name="minimum">
-            <number>2</number>
+            <double>-99.998999999999995</double>
            </property>
            <property name="maximum">
-            <number>100</number>
+            <double>99.998999999999995</double>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="binYabel">
+          <widget class="QLabel" name="thresholdTopLabel">
            <property name="text">
-            <string>y</string>
+            <string>top</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="binYSpinBox">
+          <widget class="QDoubleSpinBox" name="thresholdTopSpinBox">
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="decimals">
+            <number>3</number>
+           </property>
            <property name="minimum">
-            <number>2</number>
+            <double>-99.998999999999995</double>
            </property>
            <property name="maximum">
-            <number>100</number>
+            <double>99.998999999999995</double>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="binsHorizontalSpacer">
+          <spacer name="thresholdsHorizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -148,80 +154,6 @@
           </spacer>
          </item>
         </layout>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QVBoxLayout" name="thresholdsFrame">
-     <item>
-      <widget class="QCheckBox" name="thresholdsCheckBox">
-       <property name="text">
-        <string>Thresholds</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="thresholdsHorizontalLayout">
-       <item>
-        <widget class="QLabel" name="thresholdBottomLabel">
-         <property name="text">
-          <string>bottom</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="thresholdBottomSpinBox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="decimals">
-          <number>3</number>
-         </property>
-         <property name="minimum">
-          <double>-99.998999999999995</double>
-         </property>
-         <property name="maximum">
-          <double>99.998999999999995</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="thresholdTopLabel">
-         <property name="text">
-          <string>top</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="thresholdTopSpinBox">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="decimals">
-          <number>3</number>
-         </property>
-         <property name="minimum">
-          <double>-99.998999999999995</double>
-         </property>
-         <property name="maximum">
-          <double>99.998999999999995</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="thresholdsHorizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </item>

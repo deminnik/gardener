@@ -25,10 +25,6 @@ class ParamsPresenter:
             params.scales = self.view.scaleFromSpinBox.value(), self.view.scaleToSpinBox.value()
         else:
             params.scales = None
-        if self.view.binsCheckBox.isChecked():
-            params.bins = self.view.binXSpinBox.value(), self.view.binYSpinBox.value()
-        else:
-            params.bins = None
         if self.view.thresholdsCheckBox.isChecked():
             params.thresholds = self.view.thresholdBottomSpinBox.value(), self.view.thresholdTopSpinBox.value()
         else:
@@ -51,12 +47,6 @@ class ParamsPresenter:
                 self.view.scaleToSpinBox.setValue(scaleto)
             else:
                 log.warning("In scales from >= to")
-        if params.bins is None:
-            self.view.binsCheckBox.setChecked(Qt.Unchecked)
-        else:
-            self.view.binsCheckBox.setChecked(Qt.Checked)
-            self.view.binXSpinBox.setValue(params.bins[0])
-            self.view.binYSpinBox.setValue(params.bins[1])
         if params.thresholds is None:
             self.view.thresholdsCheckBox.setChecked(Qt.Unchecked)
         else:

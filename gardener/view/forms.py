@@ -113,9 +113,6 @@ class ParamsForm(Form):
         self.scalingCheckBox.toggled.connect(
             partial(self.toggleControlState, (self.scaleFromSpinBox, self.scaleToSpinBox))
         )
-        self.binsCheckBox.toggled.connect(
-            partial(self.toggleControlState, (self.binXSpinBox, self.binYSpinBox))
-        )
         self.thresholdsCheckBox.toggled.connect(
             partial(self.toggleControlState, (self.thresholdBottomSpinBox, self.thresholdTopSpinBox))
         )

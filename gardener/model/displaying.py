@@ -34,14 +34,10 @@ class ForcedInvariancePlot(ForcedInvariance):
         if self.params.scales is not None:
             index_scales = imagery.index.min(), imagery.index.max()
             imagery.index = self.scaling(imagery.index, index_scales, self.params.scales)
-        if self.params.bins is not None:
-            self.compression(imagery.index, self.params.bins[1])
         temp = imagery[band]
         if self.params.scales is not None:
             scales = temp.min(), temp.max()
             temp = self.scaling(temp, scales, self.params.scales)
-        if self.params.bins is not None:
-            self.compression(temp, self.params.bins[0])
         stat = self.statistics(temp, imagery.index)
         curve = self.correlation(stat)
         curve = self.smoothing(curve)

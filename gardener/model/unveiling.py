@@ -9,7 +9,6 @@ import gdal
 class Parameters:
     def __init__(self):
         self.__scales = None
-        self.__bins = None
         self.__thresholds = None
         self.__windows = (3,)
         self.__coefficient = 1.0
@@ -20,12 +19,6 @@ class Parameters:
 
     def set_scales(self, scales):
         self.__scales = scales
-
-    def get_bins(self):
-        return self.__bins
-
-    def set_bins(self, bins):
-        self.__bins = bins
 
     def get_thresholds(self):
         return self.__thresholds
@@ -52,7 +45,6 @@ class Parameters:
         self.__mask = mask
     
     scales = property(get_scales, set_scales)
-    bins = property(get_bins, set_bins)
     thresholds = property(get_thresholds, set_thresholds)
     windows = property(get_windows, set_windows)
     coefficient = property(get_coefficient, set_coefficient)
@@ -167,16 +159,12 @@ class ForcedInvariance:
         if self.params.scales is not None:
             index_scales = imagery.index.min(), imagery.index.max()
             imagery.index = self.scaling(imagery.index, index_scales, self.params.scales)
-        if self.params.bins is not None:
-            self.compression(imagery.index, self.params.bins[1])
         for band in imagery:
             temp = band.copy()
             scales = None
             if self.params.scales is not None:
                 scales = temp.min(), temp.max()
                 temp = self.scaling(temp, scales, self.params.scales)
-            if self.params.bins is not None:
-                self.compression(temp, self.params.bins[0])
             stat = self.statistics(temp, imagery.index)
             curve = self.correlation(stat)
             curve = self.smoothing(curve)
