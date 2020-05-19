@@ -26,6 +26,7 @@ class PlotPresenter:
             plot_task.presenter(self)
             plot_task.configure(fim, band, image)
             self.view.manager.task_manager.addTask(plot_task)
+            log.info("Task for displaying starts")
 
     def displaying_finished(self, band, frame):
         self.view.addTab(frame, f"Band {band}")

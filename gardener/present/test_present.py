@@ -37,6 +37,7 @@ class TestPresenter:
                 test_task.presenter(self)
                 test_task.configure(comparator, fim, imagery, standard, unveiled)
                 self.view.manager.task_manager.addTask(test_task)
+                log.info("Task for evaluating starts")
 
     def testing_finished(self, result):
         self.view.showTestResult(result)

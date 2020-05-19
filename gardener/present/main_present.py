@@ -35,6 +35,7 @@ class MainPresenter:
                                               driver=image.driver)
             if result:
                 image.unveiled(result)
+                log.info(f"Path to unveiled image: {result}")
                 fim = ForcedInvariance(params)
                 fim_task = FImTask(self.imagery_layer.name(), 
                 self.index_layer.name())
@@ -42,6 +43,7 @@ class MainPresenter:
                 fim_task.taskCompleted.connect(partial(self.unveiling_finished, result))
                 fim_task.taskTerminated.connect(self.unveiling_error)
                 self.view.manager.task_manager.addTask(fim_task)
+                log.info("Task for FIM starts")
 
     def unveiling_finished(self, layer_source):
         layer_name = path.splitext(path.basename(layer_source))[0]
