@@ -1,3 +1,11 @@
+"""forms.py
+Gardener - plugin for QGIS
+Copyright (C) 2020  Nikita Demin
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+"""
 from os import path
 from functools import partial
 
@@ -28,6 +36,7 @@ class Form(QWidget):
         self.manager = manager
         self.presenter = presenter(self)
         self.messageBar = self.manager.iface.messageBar()
+        self.messageTitle = "Gardener plugin"
 
     def saveFileDialog(self, driver="All Files", extension=".*"):
         title = "File save"
@@ -46,13 +55,16 @@ class Form(QWidget):
             control.setEnabled(state)
 
     def pushSuccessMessage(self, message):
-        self.messageBar.pushMessage("Success", message, level=Qgis.Success)
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Success)
+
+    def pushInfoMessage(self, message):
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Info)
 
     def pushWarningMessage(self, message):
-        self.messageBar.pushMessage("Warning", message, level=Qgis.Warning)
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Warning)
 
     def pushErrorMessage(self, message):
-        self.messageBar.pushMessage("Error", message, level=Qgis.Critical)
+        self.messageBar.pushMessage(self.messageTitle, message, level=Qgis.Critical)
 
 
 class MainForm(Form):
@@ -105,22 +117,21 @@ class MainForm(Form):
         self.manager.test_widget.show()
 
     def closeEvent(self, e):
-        result = QMessageBox.question(self, 
-                                      "Confirm Exit", 
-                                      "Are you sure you want to exit plugin Gardener?", 
-                                      QMessageBox.Yes | QMessageBox.No, 
-                                      QMessageBox.No)
-        if result == QMessageBox.Yes:
+        try:
             self.manager.exitPlugin()
+        except Exception as e:
+            self.pushErrorMessage(str(e))
+            log.error(str(e))
+            e.ignore()
+        else:
             e.accept()
             QWidget.closeEvent(self, e)
-        else:
-            e.ignore()
 
 
 class ParamsForm(Form):
     def __init__(self, manager, parent=None):
         super().__init__("params.ui", ParamsPresenter, manager, parent)
+        self.scalingCheckBox.setToolTip("Unfinished feature")
         self.scalingCheckBox.toggled.connect(
             partial(self.toggleControlState, (self.scaleFromSpinBox, self.scaleToSpinBox))
         )
@@ -136,12 +147,7 @@ class ParamsForm(Form):
         self.applyButton.clicked.connect(self.applyParameters)
 
     def applyParameters(self):
-        try:
-            self.presenter.apply_parameters(self.manager.parameters)
-        except:
-            self.pushErrorMessage("Parameters have not applied")
-        else:
-            self.pushSuccessMessage("Parameters have applied")
+        self.presenter.apply_parameters(self.manager.parameters)
 
     def clearWindowSizes(self):
         self.presenter.clear_window_sizes()
@@ -162,30 +168,30 @@ class PlotForm(Form):
     class PlotFrame(QWidget):
         def __init__(self, curve, cloud, parent=None):
             super().__init__(parent)
-            self.__figure = Figure()
-            self.__canvas = FigureCanvas(self.__figure)
-            self.__toolbar = NavigationToolbar(self.__canvas, self)
-            self.__set_layout()
-            self.__set_figure()
-            self.__plot_cloud(cloud)
-            self.__plot_curve(curve)
-            self.__canvas.draw()
+            self.figure = Figure()
+            self.canvas = FigureCanvas(self.figure)
+            self.toolbar = NavigationToolbar(self.canvas, self)
+            self.set_layout()
+            self.set_figure()
+            self.plot_cloud(cloud)
+            self.plot_curve(curve)
+            self.canvas.draw()
 
-        def __set_layout(self):
+        def set_layout(self):
             vbox = QVBoxLayout()
-            vbox.addWidget(self.__canvas)
-            vbox.addWidget(self.__toolbar)
+            vbox.addWidget(self.canvas)
+            vbox.addWidget(self.toolbar)
             self.setLayout(vbox)
 
-        def __set_figure(self):
-            self.__axes = self.__figure.add_subplot(111)
-            self.__axes.clear()
+        def set_figure(self):
+            self.axes = self.figure.add_subplot(111)
+            self.axes.clear()
 
-        def __plot_curve(self, curve):
-            self.__axes.plot(curve.x, curve.y, linewidth=0.5, color='k')
+        def plot_curve(self, curve):
+            self.axes.plot(curve.x, curve.y, linewidth=0.5, color='k')
 
-        def __plot_cloud(self, cloud):
-            self.__axes.scatter(cloud.x, cloud.y, s=0.2, c='y')
+        def plot_cloud(self, cloud):
+            self.axes.scatter(cloud.x, cloud.y, s=0.2, c='y')
             
 
     def __init__(self, manager, parent=None):

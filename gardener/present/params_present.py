@@ -1,7 +1,17 @@
+"""params_present.py
+Gardener - plugin for QGIS
+Copyright (C) 2020  Nikita Demin
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+"""
 from qgis.PyQt.QtCore import Qt
 from qgis.core import QgsMessageLog, Qgis
 
 from gardener.helpers import logger as log
+from gardener.helpers.exceptions import *
+from gardener.helpers import controller as check
 
 
 class ParamsPresenter:
@@ -21,20 +31,35 @@ class ParamsPresenter:
         self.view.windowsLineEdit.clear()
 
     def apply_parameters(self, params):
+        scales = None
+        thresholds = None
+        windows = tuple(self.smoothing_windows)
+        coefficient = self.view.targetSpinBox.value()
+        mask = None
         if self.view.scalingCheckBox.isChecked():
-            params.scales = self.view.scaleFromSpinBox.value(), self.view.scaleToSpinBox.value()
-        else:
-            params.scales = None
+            scales = self.view.scaleFromSpinBox.value(), self.view.scaleToSpinBox.value()
         if self.view.thresholdsCheckBox.isChecked():
-            params.thresholds = self.view.thresholdBottomSpinBox.value(), self.view.thresholdTopSpinBox.value()
-        else:
-            params.thresholds = None
-        params.windows = tuple(self.smoothing_windows)
-        params.coefficient = self.view.targetSpinBox.value()
+            thresholds = self.view.thresholdBottomSpinBox.value(), self.view.thresholdTopSpinBox.value()
         if self.view.maskCheckBox.isChecked():
-            params.mask = self.view.maskLayerComboBox.currentLayer()
+            mask = self.view.maskLayerComboBox.currentLayer()
+        try:
+            if scales: check.scales(scales)
+            if thresholds: check.thresholds(thresholds)
+            check.windows(windows)
+            check.coefficient(coefficient)
+            if mask: check.layer(mask)
+        except (ParametersError, LayersError) as e:
+            log.warning(str(e))
+            self.view.pushWarningMessage(str(e))
         else:
-            params.mask = None
+            params.scales = scales
+            params.thresholds = thresholds
+            params.windows = windows
+            params.coefficient = coefficient
+            params.mask = mask
+            message = "Parameters have applied"
+            log.success(message)
+            self.view.pushSuccessMessage(message)
 
     def init_window(self, params):
         if params.scales is None:
@@ -42,32 +67,20 @@ class ParamsPresenter:
         else:
             self.view.scalingCheckBox.setChecked(Qt.Checked)
             scalefrom, scaleto = params.scales
-            if scalefrom < scaleto:
-                self.view.scaleFromSpinBox.setValue(scalefrom)
-                self.view.scaleToSpinBox.setValue(scaleto)
-            else:
-                log.warning("In scales from >= to")
+            self.view.scaleFromSpinBox.setValue(scalefrom)
+            self.view.scaleToSpinBox.setValue(scaleto)
         if params.thresholds is None:
             self.view.thresholdsCheckBox.setChecked(Qt.Unchecked)
         else:
             self.view.thresholdsCheckBox.setChecked(Qt.Checked)
             bottom, top = params.thresholds
-            if bottom < top:
-                self.view.thresholdBottomSpinBox.setValue(bottom)
-                self.view.thresholdTopSpinBox.setValue(top)
-            else:
-                log.warning("In thresholds bottom >= top")
+            self.view.thresholdBottomSpinBox.setValue(bottom)
+            self.view.thresholdTopSpinBox.setValue(top)
         if params.mask is None:
             self.view.maskCheckBox.setChecked(Qt.Unchecked)
         else:
             self.view.maskCheckBox.setChecked(Qt.Checked)
             self.view.maskLayerComboBox.setLayer(params.mask)
-        if params.coefficient >= 0:
-            self.view.targetSpinBox.setValue(params.coefficient)
-        else:
-            log.warning("Target value coefficient must be a positive number")
-        if all(map(lambda x: x > 1, params.windows)):
-            self.smoothing_windows = list(params.windows)
-            self.view.windowsLineEdit.setText(self.s.join(map(str, params.windows)))
-        else:
-            log.warning("Some window sizes less than or equal 1")
+        self.view.targetSpinBox.setValue(params.coefficient)
+        self.smoothing_windows = list(params.windows)
+        self.view.windowsLineEdit.setText(self.s.join(map(str, params.windows)))

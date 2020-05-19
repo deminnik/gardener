@@ -1,3 +1,11 @@
+"""tasks.py
+Gardener - plugin for QGIS
+Copyright (C) 2020  Nikita Demin
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+"""
 from qgis.core import QgsTask
 
 from gardener.model.unveiling import Raster
@@ -11,16 +19,16 @@ class FImTask(QgsTask):
         super().__init__(name, QgsTask.CanCancel)
 
     def configure(self, algorithm, argument):
-        self.__fim = algorithm
-        self.__img = argument
+        self.fim = algorithm
+        self.img = argument
     
     def run(self):
         try:
-            self.__fim(self.__img)
+            self.fim(self.img)
         except:
             return False
         else:
-            del self.__img
+            del self.img
             return True
 
 
@@ -32,29 +40,25 @@ class PlotTask(QgsTask):
         super().__init__(name, QgsTask.CanCancel)
 
     def presenter(self, presenter):
-        self.__presenter = presenter
+        self.presenter = presenter
 
     def configure(self, algorithm, band, imagery):
-        self.__fim = algorithm
-        self.__band = band
-        self.__img = imagery
+        self.fim = algorithm
+        self.band = band
+        self.img = imagery
     
     def run(self):
         try:
-            self.__curve, self.__cloud = self.__fim(self.__band-1, self.__img)
-        except Exception as e:
-            raise e
-        else:
-            return True
+            self.curve, self.cloud = self.fim(self.band-1, self.img)
+        except: return False
+        else: return True
 
     def finished(self, result):
         if result:
-            frame = self.__presenter.view.PlotFrame(self.__curve, self.__cloud)
-            self.__presenter.displaying_finished(self.__band, frame)
-
-    def cancel(self):
-        self.__presenter.displaying_error()
-        super().cancel()
+            frame = self.presenter.view.PlotFrame(self.curve, self.cloud)
+            self.presenter.displaying_finished(self.band, frame)
+        else:
+            self.presenter.displaying_error()
 
 
 class TestTask(QgsTask):
@@ -65,30 +69,26 @@ class TestTask(QgsTask):
         super().__init__(name, QgsTask.CanCancel)
 
     def presenter(self, presenter):
-        self.__presenter = presenter
+        self.presenter = presenter
 
     def configure(self, comparator, fim, imagery, standard, temp):
-        self.__comparator = comparator
-        self.__fim = fim
-        self.__imagery = imagery
-        self.__standard = standard
-        self.__unveiled = temp
+        self.comparator = comparator
+        self.fim = fim
+        self.imagery = imagery
+        self.standard = standard
+        self.unveiled = temp
     
     def run(self):
         try:
-            self.__fim(self.__imagery)
-            result = Raster(self.__unveiled)
-            self.__similarity = self.__comparator(result.raster, 
-                                                    self.__standard.raster)
-        except Exception as e:
-            raise e
-        else:
-            return True
+            self.fim(self.imagery)
+            result = Raster(self.unveiled)
+            self.similarity = self.comparator(result.raster, 
+                                              self.standard.raster)
+        except: return False
+        else: return True
 
     def finished(self, result):
         if result:
-            self.__presenter.testing_finished(self.__similarity)
-
-    def cancel(self):
-        self.__presenter.testing_error()
-        super().cancel()
+            self.presenter.testing_finished(self.similarity)
+        else:
+            self.presenter.testing_error()
