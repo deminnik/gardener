@@ -159,30 +159,30 @@ class PlotForm(Form):
     class PlotFrame(QWidget):
         def __init__(self, curve, cloud, parent=None):
             super().__init__(parent)
-            self.__figure = Figure()
-            self.__canvas = FigureCanvas(self.__figure)
-            self.__toolbar = NavigationToolbar(self.__canvas, self)
-            self.__set_layout()
-            self.__set_figure()
-            self.__plot_cloud(cloud)
-            self.__plot_curve(curve)
-            self.__canvas.draw()
+            self.figure = Figure()
+            self.canvas = FigureCanvas(self.figure)
+            self.toolbar = NavigationToolbar(self.canvas, self)
+            self.set_layout()
+            self.set_figure()
+            self.plot_cloud(cloud)
+            self.plot_curve(curve)
+            self.canvas.draw()
 
-        def __set_layout(self):
+        def set_layout(self):
             vbox = QVBoxLayout()
-            vbox.addWidget(self.__canvas)
-            vbox.addWidget(self.__toolbar)
+            vbox.addWidget(self.canvas)
+            vbox.addWidget(self.toolbar)
             self.setLayout(vbox)
 
-        def __set_figure(self):
-            self.__axes = self.__figure.add_subplot(111)
-            self.__axes.clear()
+        def set_figure(self):
+            self.axes = self.figure.add_subplot(111)
+            self.axes.clear()
 
-        def __plot_curve(self, curve):
-            self.__axes.plot(curve.x, curve.y, linewidth=0.5, color='k')
+        def plot_curve(self, curve):
+            self.axes.plot(curve.x, curve.y, linewidth=0.5, color='k')
 
-        def __plot_cloud(self, cloud):
-            self.__axes.scatter(cloud.x, cloud.y, s=0.2, c='y')
+        def plot_cloud(self, cloud):
+            self.axes.scatter(cloud.x, cloud.y, s=0.2, c='y')
             
 
     def __init__(self, manager, parent=None):

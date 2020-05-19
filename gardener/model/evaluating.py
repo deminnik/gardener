@@ -3,7 +3,7 @@ import numpy as np
 
 class Comparator:
     def __init__(self, threshold):
-        self.__threshold = threshold
+        self._threshold = threshold
 
     def __call__(self, image, model):
         if image.ndim == 3 and model.ndim == 3:
@@ -27,7 +27,7 @@ class Comparator:
         return np.sum(cube * weights, axis=0)
 
     def similarity_filter(self, matrix):
-        return matrix <= self.__threshold
+        return matrix <= self._threshold
 
     def similarity_calculation(self, matrix):
         clear_pixels = np.count_nonzero(matrix)

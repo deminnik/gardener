@@ -31,13 +31,13 @@ class Cloud(Plot):
 
 class ForcedInvariancePlot(ForcedInvariance):
     def __call__(self, band, imagery):
-        if self.params.scales is not None:
+        if self._params.scales is not None:
             index_scales = imagery.index.min(), imagery.index.max()
-            imagery.index = self.scaling(imagery.index, index_scales, self.params.scales)
+            imagery.index = self.scaling(imagery.index, index_scales, self._params.scales)
         temp = imagery[band]
-        if self.params.scales is not None:
+        if self._params.scales is not None:
             scales = temp.min(), temp.max()
-            temp = self.scaling(temp, scales, self.params.scales)
+            temp = self.scaling(temp, scales, self._params.scales)
         stat = self.statistics(temp, imagery.index)
         curve = self.correlation(stat)
         curve = self.smoothing(curve)
