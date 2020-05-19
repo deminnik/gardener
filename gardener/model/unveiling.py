@@ -1,3 +1,11 @@
+"""unveiling.py
+Gardener - plugin for QGIS
+Copyright (C) 2020  Nikita Demin
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+"""
 from pathlib import Path
 from scipy.signal import medfilt
 from collections import defaultdict
@@ -7,6 +15,14 @@ import gdal
 
 
 class Parameters:
+    """Parameters for FIM
+    Attributes:
+        _scales (None, tuple): range for scaling
+        _thresholds (None, tuple): thresholds for vegetation index
+        _windows (tuple): median filter's windows
+        _coefficient (float): coefficient for target value
+        _mask (None, QgsMapLayer): mask for imagery
+    """
     def __init__(self):
         self._scales = None
         self._thresholds = None
@@ -52,6 +68,10 @@ class Parameters:
 
 
 class Mask:
+    """Mask for imagery
+    Attributes:
+        _array (numpy.ndarray): array of values
+    """
     def __init__(self, shape):
         self._array = np.full(shape, False)
 
@@ -60,11 +80,27 @@ class Mask:
         return self._array
 
     def add(self, mask):
+        """Adds a new mask (overlays an existing one)
+        Args:
+            mask (numpy.ndarray): new mask
+        """
         self._array += mask.astype(bool)
 
 
 class Image:
+    """Abstract imagery
+    Attributes:
+        _file (pathlib.Path): path to file
+        _image (gdal.Dataset): GDAL dataset for file
+        _driver (str): GDAL file driver name
+        _extension (str): file extension
+        _name (str): file name (without extension)
+    """
     def __init__(self, file):
+        """Image class constructor
+        Args:
+            file (str): path to imagery file
+        """
         self._file = Path(file)
         self._image = gdal.Open(file)
         if self._image:
@@ -88,7 +124,15 @@ class Image:
 
 
 class Raster(Image):
+    """Class for images with one band
+    Attributes:
+        _raster (numpy.ndarray): array of pixel values
+    """
     def __init__(self, image_path):
+        """Raster class constructor
+        Args:
+            image_path (str): path to imagery file
+        """
         super().__init__(image_path)
         self._raster = self._image.ReadAsArray()
 
@@ -102,7 +146,19 @@ class Raster(Image):
 
 
 class Imagery(Image):
+    """Multispectral imagery with vegetation index
+    Attributes:
+        _index (Raster): vegetation index
+        _mask (Mask): mask
+        _nodata (float): nodata-value
+        _new (Image): unveiled version of imagery
+    """
     def __init__(self, image_path, index_path):
+        """Imagery class constructor
+        Args:
+            image_path (str): path to imagery file
+            index_path (str): path to vegetation index file
+        """
         super().__init__(image_path)
         self._index = Raster(index_path)
         shape = self._image.RasterYSize, self._image.RasterXSize
@@ -113,6 +169,12 @@ class Imagery(Image):
             self._mask.add(np.isin(first_band.ReadAsArray(), [self._nodata]))
 
     def __getitem__(self, i):
+        """Gives aт imagery band
+        Args:
+            i (int): index
+        Returns:
+            numpy.ma.array: masked array for a specific band from an imagery
+        """
         i += 1
         if i > self._image.RasterCount:
             raise IndexError
@@ -121,6 +183,10 @@ class Imagery(Image):
             return ma.array(band, mask=self._mask.array)
 
     def unveiled(self, image_path):
+        """Create unveiled version of imagery
+        Args:
+            image_path (str): path to unveiled imagery file
+        """
         self._new = Image(image_path)
         bands = self._image.RasterCount
         ysize, xsize = self._image.RasterYSize, self._image.RasterXSize
@@ -134,6 +200,10 @@ class Imagery(Image):
         self._counter = 1
 
     def save(self, band):
+        """Write specific processed band to unveiled imagery version
+        Args:
+            band (numpy.ma.array): band processed with FIM
+        """
         self._new._image.GetRasterBand(self._counter).WriteArray(band)
         if not self._nodata is None:
             self._new._image.GetRasterBand(self._counter).SetNoDataValue(self._nodata)
@@ -153,10 +223,22 @@ class Imagery(Image):
 
 
 class ForcedInvariance:
+    """Encapsulates the steps of a forced invariance algorithm
+    Attributes:
+        _params (Parameters): parameters for FIM
+    """
     def __init__(self, parameters):
+        """ForcedInvariance class constructor
+        Args:
+            parameters (Parameters): parameters for FIM
+        """
         self._params = parameters
 
     def __call__(self, imagery):
+        """Forced Invariance algorithm
+        Args:
+            imagery (Imagery): imagery for processing
+        """
         if not self._params.mask is None:
             mask_array = gdal.Open(self._params.mask.source()).ReadAsArray()
             imagery.mask.add(mask_array)
@@ -182,23 +264,28 @@ class ForcedInvariance:
             imagery.save(band)
 
     def scaling(self, value, old, new):
+        """Transition to a new scale
+        Args:
+            value (numpy.ma.array, float): value or array to recalculate
+            old (tuple): old min and max values
+            new (tuple): new min and max values
+        Returns:
+            numpy.ma.array, float: recalculated value or array
+        """
         omin, omax = old
         nmin, nmax = new
         orange = omax - omin
         nrange = nmax - nmin
         return ((value - omin) / orange) * nrange + nmin
 
-    def compression(self, raster, step):
-        values = np.sort(np.ravel(raster)).reshape(-1, step)
-        mean = values.mean(axis=1)
-        for i in range(len(mean)):
-            for value in values[i]:
-                indexes = np.argwhere(raster==value)
-                iy = [x[0] for x in indexes]
-                ix = [x[1] for x in indexes]
-                raster[iy, ix] = mean[i]
-
     def statistics(self, band, index):
+        """Statistics for band
+        Args:
+            band (numpy.ma.array): imagery band
+            index (numpy.ndarray): vegetation indexes
+        Returns:
+            dict: dictionary where keys are index and values are pixels
+        """
         stat = defaultdict(list)
         y, x = band.shape
         for i in range(y):
@@ -208,9 +295,21 @@ class ForcedInvariance:
         return stat
 
     def correlation(self, stat):
+        """Correlation curve building
+        Args:
+            stat (dict): band statistics
+        Returns:
+            dict: correlation curve
+        """
         return {i:sum(stat[i])/len(stat[i]) for i in stat}
 
     def smoothing(self, curve):
+        """Correlation curve smoothing
+        Args:
+            curve (dict): correlation curve
+        Returns:
+            dict: smooth correlation curve
+        """
         keys = sorted(curve.keys())
         values = [curve[key] for key in keys]
         for window in self._params.windows:
@@ -218,9 +317,23 @@ class ForcedInvariance:
         return dict(zip(keys, values))
 
     def target_value(self, band):
+        """Calculation of target value for band
+        Args:
+            band (numpy.ma.array): imagery band
+        Returns:
+            float: target value
+        """
         return band.mean() * self._params.coefficient
 
     def recalculate(self, band, curve, index, target, scales):
+        """Recalculation of pixels in band
+        Args:
+            band (numpy.ma.array): imagery band
+            curve (dict): correlation curve
+            index (numpy.ndarray): vegetation indexes
+            target (float): target value
+            scales (tuple): original scale values
+        """
         def curve_value(value):
             nonlocal scales
             if scales is not None:
