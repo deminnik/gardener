@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC>
     <qresource prefix="/plugins/gardener">
-        <file>gardener.png</file>
+        <file>logo.png</file>
     </qresource>
 </RCC>

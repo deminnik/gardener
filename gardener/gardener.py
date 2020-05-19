@@ -13,7 +13,7 @@ class Gardener:
 
     def initGui(self):
         self.action = QAction(
-            QIcon(path.join(path.dirname(__file__), "gardener.png")),
+            QIcon(path.join(path.dirname(__file__), "logo.png")),
             "Suppress vegetation",
             self.iface.mainWindow()
         )
