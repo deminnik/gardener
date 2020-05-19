@@ -32,6 +32,9 @@
       <layout class="QVBoxLayout" name="scaleVerticalLayout">
        <item>
         <widget class="QCheckBox" name="scalingCheckBox">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Scaling</string>
          </property>

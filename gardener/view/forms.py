@@ -131,6 +131,7 @@ class MainForm(Form):
 class ParamsForm(Form):
     def __init__(self, manager, parent=None):
         super().__init__("params.ui", ParamsPresenter, manager, parent)
+        self.scalingCheckBox.setToolTip("Unfinished feature")
         self.scalingCheckBox.toggled.connect(
             partial(self.toggleControlState, (self.scaleFromSpinBox, self.scaleToSpinBox))
         )
